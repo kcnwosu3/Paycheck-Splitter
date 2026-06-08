@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paycheck Splitter</title>
+<style>
+  *{box-sizing:border-box;font-family:system-ui,sans-serif}
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  body{background:#1a1a1a;color:#f0f0f0;margin:0;padding:1rem;max-width:700px;margin:0 auto;padding:1rem}
+  .card{background:#242424;border:1px solid #333;border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px}
+  .metric{background:#2c2c2c;border-radius:8px;padding:1rem}
+  .metric-label{font-size:13px;color:#888;margin:0 0 4px}
+  .metric-value{font-size:22px;font-weight:500;margin:0;color:#f0f0f0}
+  .section-title{font-size:16px;font-weight:500;margin:0 0 12px;color:#f0f0f0}
+  .bucket-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #2e2e2e}
+  .bucket-row:last-child{border-bottom:none}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .editable{cursor:pointer;border-bottom:1px dashed #555;color:#f0f0f0;background:transparent}
+  .editable:hover{border-bottom-color:#aaa}
+  .bucket-name-edit{flex:1;min-width:0;font-size:14px;font-weight:500}
+  .bucket-pct-edit{width:36px;text-align:center;font-size:14px;font-weight:500;flex-shrink:0}
+  .inline-input{border:none;border-bottom:2px solid #378ADD;outline:none;background:#1e2e3e;color:#f0f0f0;font-size:14px;font-weight:500;padding:1px 4px;border-radius:4px 4px 0 0;-moz-appearance:textfield}
+  .name-inline{flex:1;min-width:0;width:100%}
+  .pct-inline{width:36px;text-align:center}
+  .amt{font-size:13px;font-weight:500;min-width:72px;text-align:right;color:#f0f0f0;flex-shrink:0}
+  .bar-wrap{width:50px;height:5px;background:#333;border-radius:3px;flex-shrink:0}
+  .bar{height:5px;border-radius:3px}
+  .del-btn{background:none;border:none;cursor:pointer;color:#555;font-size:15px;padding:0;line-height:1;flex-shrink:0}
+  .del-btn:hover{color:#e24b4a}
+  .tab-btn{font-size:13px;padding:6px 11px;cursor:pointer;border:none;background:transparent;color:#666;border-bottom:2px solid transparent;white-space:nowrap}
+  .tab-btn.active{color:#f0f0f0;border-bottom:2px solid #f0f0f0;font-weight:500}
+  .progress-track{height:10px;background:#2c2c2c;border-radius:5px;overflow:hidden;margin:8px 0}
+  .progress-fill{height:10px;border-radius:5px;transition:width 0.4s}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin:2px 2px 0 0}
+  .history-row{padding:12px 0;border-bottom:1px solid #2e2e2e}
+  .history-row:last-child{border-bottom:none}
+  .hint{font-size:12px;color:#666;margin:0 0 10px}
+  .suggestion-box{background:#1e2a1e;border:1px solid #2d5a2d;border-radius:10px;padding:1rem;margin-bottom:14px}
+  .suggestion-title{font-size:13px;font-weight:600;color:#4caf84;margin:0 0 6px}
+  .suggestion-body{font-size:13px;color:#ccc;margin:0 0 10px;line-height:1.6}
+  .change-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid #2a3a2a}
+  .change-row:last-child{border-bottom:none}
+  .change-vals{display:flex;align-items:center;gap:6px;font-size:12px;color:#888}
+  .change-new{font-weight:600;color:#f0f0f0}
+  .change-new.up{color:#4caf84}
+  .change-new.down{color:#e08060}
+  .suggestion-btns{display:flex;gap:8px;margin-top:12px}
+  .btn-approve{flex:1;padding:7px;font-size:13px;font-weight:500;cursor:pointer;background:#2d5a2d;border:1px solid #3d7a3d;border-radius:6px;color:#f0f0f0}
+  .btn-approve:hover{background:#3a6e3a}
+  .btn-dismiss{padding:7px 14px;font-size:13px;cursor:pointer;background:transparent;border:1px solid #444;border-radius:6px;color:#888}
+  .btn-dismiss:hover{color:#f0f0f0;border-color:#666}
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.5rem}
+  .tabs{display:flex;border-bottom:1px solid #333;margin-bottom:1.5rem;flex-wrap:wrap;gap:0}
+  .warn-text{color:#e24b4a}
+  .ok-text{color:#1D9E75}
+  textarea{background:#2c2c2c;border:1px solid #444;border-radius:8px;color:#f0f0f0;font-size:13px;padding:8px 10px;width:100%;resize:vertical;outline:none;font-family:system-ui,sans-serif}
+  textarea:focus{border-color:#666}
+  .tip-row{padding:10px 0;border-bottom:1px solid #2e2e2e}
+  .tip-row:last-child{border-bottom:none}
+  .tip-breakdown{font-size:12px;color:#888;margin-top:4px;line-height:1.6}
+  .goal-bar-label{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-top:4px}
+  .rate-input{font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:60px;text-align:right}
+  /* Confetti canvas */
+  #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
+  .milestone-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e2a1e;border:1px solid #4caf84;border-radius:12px;padding:12px 20px;font-size:14px;color:#4caf84;font-weight:600;z-index:10000;display:none;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="milestone-toast" id="milestone-toast"></div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-split" onclick="showTab('split')">Paycheck</button>
+  <button class="tab-btn" id="tab-tips" onclick="showTab('tips')">Tips</button>
+  <button class="tab-btn" id="tab-settings" onclick="showTab('settings')">Buckets</button>
+  <button class="tab-btn" id="tab-history" onclick="showTab('history')">History</button>
+  <button class="tab-btn" id="tab-trackers" onclick="showTab('trackers')">Trackers</button>
+</div>
+
+<!-- PAYCHECK SPLIT -->
+<div id="view-split">
+  <div id="suggestion-area"></div>
+  <div class="metrics-grid">
+    <div class="metric">
+      <p class="metric-label">Take-home pay</p>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:16px;color:#888">$</span>
+        <input type="number" id="pay-input" min="0" style="font-size:22px;font-weight:500;border:none;background:transparent;width:110px;color:#f0f0f0;outline:none" oninput="recalcSplit()" />
+      </div>
+    </div>
+    <div class="metric"><p class="metric-label">Allocated</p><p class="metric-value" id="pct-display">0%</p></div>
+    <div class="metric"><p class="metric-label">Unallocated</p><p class="metric-value" id="leftover-display">$0.00</p></div>
+  </div>
+  <div class="card">
+    <p class="section-title">Allocation breakdown</p>
+    <div id="split-buckets"></div>
+    <canvas id="donut-chart" width="200" height="200" style="display:block;margin:1.5rem auto 0"></canvas>
+    <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <p class="section-title" style="margin-bottom:6px">Note <span style="font-size:12px;color:#666;font-weight:400">(optional)</span></p>
+    <textarea id="paycheck-note" rows="2" placeholder="e.g. got a bonus, short week..."></textarea>
+  </div>
+  <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:#2c2c2c;border:1px solid #444;border-radius:8px;color:#f0f0f0">
+    ✓ Log this paycheck
+  </button>
+  <p id="log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
+</div>
+
+<!-- TIPS -->
+<div id="view-tips" style="display:none">
+  <div class="card">
+    <p class="section-title">Log a shift's tips</p>
+    <p class="hint">Enter your tip amount and we'll suggest how to allocate it based on your bucket percentages — but tips are unpredictable, so you set your own split below.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Tips earned</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="tip-amount" min="0" style="font-size:22px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:120px" oninput="renderTipBreakdown()" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Shift date</p>
+        <input type="date" id="tip-date" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:100%" />
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <p style="font-size:12px;color:#888;margin:0 0 6px">Note <span style="color:#555">(optional)</span></p>
+      <textarea id="tip-note" rows="2" placeholder="e.g. Saturday night, busy shift..."></textarea>
+    </div>
+
+    <p class="section-title" style="font-size:14px;margin-bottom:8px">How to split these tips</p>
+    <p class="hint">Set percentages for tip allocation — can differ from your paycheck buckets since tips are cash and more variable.</p>
+    <div id="tip-bucket-settings"></div>
+    <p style="font-size:12px;color:#888;margin:8px 0 4px" id="tip-pct-total"></p>
+
+    <div id="tip-breakdown-preview" style="margin-top:12px"></div>
+  </div>
+
+  <div style="margin-bottom:12px">
+    <p style="font-size:12px;color:#888;margin:0 0 6px">Tip allocation (must total 100%)</p>
+  </div>
+
+  <button onclick="logTips()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:#2c2c2c;border:1px solid #444;border-radius:8px;color:#f0f0f0">
+    ✓ Log this shift's tips
+  </button>
+  <p id="tip-log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
+
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <p class="section-title" style="margin:0">Tip history</p>
+      <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#888">Clear</button>
+    </div>
+    <div id="tip-history-list"><p style="font-size:14px;color:#666">No tips logged yet.</p></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
+</div>
+
+<!-- BUCKETS -->
+<div id="view-settings" style="display:none">
+  <div class="card">
+    <p class="section-title">Your paycheck buckets</p>
+    <p class="hint">Click a name or number to edit, then press Enter or click away to save.</p>
+    <div id="settings-buckets"></div>
+    <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#f0f0f0">+ Add bucket</button>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="view-history" style="display:none">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <p class="section-title" style="margin:0">Paycheck log</p>
+      <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#888">Clear all</button>
+    </div>
+    <div id="history-list"><p style="font-size:14px;color:#666">No paychecks logged yet.</p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
+</div>
+
+<!-- TRACKERS -->
+<div id="view-trackers" style="display:none">
+
+  <!-- Roth IRA -->
+  <div class="card">
+    <p class="section-title">Roth IRA — 2025 contribution tracker</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Contributed so far</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="ira-contributed" min="0" max="7000" style="font-size:18px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:100px" oninput="saveTrackers();recalcSplit()" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Annual limit</p>
+        <p style="font-size:18px;font-weight:500;margin:0;color:#f0f0f0">$7,000</p>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="ira-bar" style="background:#7F77DD;width:0%"></div></div>
+    <div class="goal-bar-label"><span id="ira-pct-label">0% of limit used</span><span id="ira-remaining-label">$7,000 remaining</span></div>
+    <p id="ira-auto-note" style="font-size:12px;color:#888;margin:10px 0 0"></p>
+  </div>
+
+  <!-- Collections -->
+  <div class="card">
+    <p class="section-title">Collections payoff tracker</p>
+    <p style="font-size:12px;color:#888;margin:-6px 0 12px">Track any collections accounts you're paying down.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Original balance</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="collections-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Current balance</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="collections-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+        </div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="collections-bar" style="background:#D85A30;width:0%"></div></div>
+    <div class="goal-bar-label"><span id="collections-pct-label">0% paid off</span><span id="collections-remaining-label"></span></div>
+    <p id="collections-auto-note" style="font-size:12px;color:#888;margin:10px 0 0;line-height:1.6"></p>
+  </div>
+
+  <!-- Student Loans -->
+  <div class="card">
+    <p class="section-title">Student loan payoff tracker</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem">
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Original balance</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="loan-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Current balance</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="color:#888">$</span>
+          <input type="number" id="loan-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:#888;margin:0 0 6px">Interest rate</p>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="number" id="loan-rate" min="0" max="30" step="0.1" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:50px;text-align:right" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:#888;font-size:13px">%</span>
+        </div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="loan-bar" style="background:#1D9E75;width:0%"></div></div>
+    <div class="goal-bar-label"><span id="loan-pct-label">0% paid off</span><span id="loan-remaining-label"></span></div>
+    <p id="loan-auto-note" style="font-size:12px;color:#888;margin:10px 0 0;line-height:1.6"></p>
+  </div>
+</div>
+
+<script>
+const COLORS=['#1D9E75','#7F77DD','#378ADD','#D85A30','#639922','#D4537E','#BA7517','#9FE1CB'];
+const BG_COLORS=['#0d2e20','#1e1c3a','#0f2236','#2e1a10','#1a2608','#2a0f1c','#2b1e06','#0d2e20'];
+const DEFAULT_BUCKETS=[
+  {id:1,name:'Essential expenses',pct:50},
+  {id:2,name:'Savings account',pct:15},
+  {id:3,name:'Roth IRA',pct:10},
+  {id:4,name:'Student loans',pct:15},
+  {id:5,name:'Discretionary',pct:10},
+];
+const DEFAULT_TIP_BUCKETS=[
+  {id:1,name:'Pocket (cash)',pct:50},
+  {id:2,name:'Savings account',pct:25},
+  {id:3,name:'Student loans',pct:25},
+];
+let state={buckets:DEFAULT_BUCKETS,history:[],nextId:6,tipBuckets:DEFAULT_TIP_BUCKETS,tipHistory:[],tipNextId:4};
+let trackers={iraContributed:0,loanOriginal:0,loanCurrent:0,loanRate:0,collectionsOriginal:0,collectionsCurrent:0};
+let pendingSuggestion=null,suggestionDismissedForPay=null;
+
+// ---- STORAGE ----
+function loadState(){
+  try{const s=localStorage.getItem('paycheck-state2');if(s)state={...state,...JSON.parse(s)}}catch(e){}
+  try{const t=localStorage.getItem('paycheck-trackers2');if(t)trackers={...trackers,...JSON.parse(t)}}catch(e){}
+  try{const p=localStorage.getItem('paycheck-amount');document.getElementById('pay-input').value=p||'2000'}catch(e){document.getElementById('pay-input').value='2000'}
+  document.getElementById('ira-contributed').value=trackers.iraContributed||0;
+  document.getElementById('loan-original').value=trackers.loanOriginal||0;
+  document.getElementById('loan-current').value=trackers.loanCurrent||0;
+  document.getElementById('loan-rate').value=trackers.loanRate||0;
+  document.getElementById('collections-original').value=trackers.collectionsOriginal||0;
+  document.getElementById('collections-current').value=trackers.collectionsCurrent||0;
+  // set today's date for tip form
+  document.getElementById('tip-date').value=new Date().toISOString().split('T')[0];
+  renderAll();
+}
+function saveState(){try{localStorage.setItem('paycheck-state2',JSON.stringify(state))}catch(e){}}
+function saveTrackers(){
+  trackers.iraContributed=parseFloat(document.getElementById('ira-contributed').value)||0;
+  trackers.loanOriginal=parseFloat(document.getElementById('loan-original').value)||0;
+  trackers.loanCurrent=parseFloat(document.getElementById('loan-current').value)||0;
+  trackers.loanRate=parseFloat(document.getElementById('loan-rate').value)||0;
+  trackers.collectionsOriginal=parseFloat(document.getElementById('collections-original').value)||0;
+  trackers.collectionsCurrent=parseFloat(document.getElementById('collections-current').value)||0;
+  try{localStorage.setItem('paycheck-trackers2',JSON.stringify(trackers))}catch(e){}
+}
+function savePayAmount(){try{localStorage.setItem('paycheck-amount',document.getElementById('pay-input').value)}catch(e){}}
+
+// ---- UTILS ----
+function fmt(n){return'$'+parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function round2(n){return Math.round(n*100)/100}
+function totalPct(arr){return(arr||state.buckets).reduce((a,b)=>a+(parseFloat(b.pct)||0),0)}
+
+// ---- CONFETTI ----
+function celebrate(message){
+  const toast=document.getElementById('milestone-toast');
+  toast.textContent=message;
+  toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',4000);
+  const canvas=document.getElementById('confetti-canvas');
+  canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const pieces=Array.from({length:120},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,
+    r:Math.random()*6+3,c:COLORS[Math.floor(Math.random()*COLORS.length)],
+    d:Math.random()*3+1,s:Math.random()*2-1
+  }));
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,2*Math.PI);
+      ctx.fillStyle=p.c;ctx.fill();
+      p.y+=p.d;p.x+=p.s;
+      if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
+    });
+    frame++;
+    if(frame<180)requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,canvas.width,canvas.height);canvas.style.display='none';}
+  }
+  draw();
+}
+
+// ---- MILESTONES ----
+function checkMilestones(prevTrackers){
+  const ira=parseFloat(document.getElementById('ira-contributed').value)||0;
+  const loanCurr=parseFloat(document.getElementById('loan-current').value)||0;
+  const loanOrig=parseFloat(document.getElementById('loan-original').value)||0;
+
+  if(ira>=7000&&(prevTrackers.iraContributed||0)<7000)celebrate('🎉 Roth IRA maxed out for 2025!');
+  else if(loanOrig>0&&loanCurr<=0&&(prevTrackers.loanCurrent||0)>0)celebrate('🎉 Student loans paid off!');
+  else{
+    const colOrig=parseFloat(document.getElementById('collections-original').value)||0;
+    const colCurr=parseFloat(document.getElementById('collections-current').value)||0;
+    if(colOrig>0&&colCurr<=0&&(prevTrackers.collectionsCurrent||0)>0)celebrate('🎉 Collections balance cleared!');
+  }
+}
+
+// ---- SUGGESTION ----
+function computeSuggestion(pay){
+  if(!pay) return null;
+  const iraContributed=parseFloat(document.getElementById('ira-contributed').value)||0;
+  const iraRemaining=Math.max(7000-iraContributed,0);
+  if(iraRemaining<=0) return null;
+  const iraBucket=state.buckets.find(b=>b.name.toLowerCase().includes('ira')||b.name.toLowerCase().includes('roth'));
+  const loanBucket=state.buckets.find(b=>b.name.toLowerCase().includes('loan'));
+  if(!iraBucket||!loanBucket) return null;
+  const currentIraDollars=pay*(parseFloat(iraBucket.pct)||0)/100;
+  if(currentIraDollars<=iraRemaining) return null;
+  const neededPct=round2((iraRemaining/pay)*100);
+  const freedPct=round2((parseFloat(iraBucket.pct)||0)-neededPct);
+  if(freedPct<=0) return null;
+  return{iraBucket,loanBucket,oldIraPct:parseFloat(iraBucket.pct)||0,newIraPct:neededPct,oldLoanPct:parseFloat(loanBucket.pct)||0,newLoanPct:round2((parseFloat(loanBucket.pct)||0)+freedPct),freedPct,iraRemaining,extraToLoans:round2(pay*freedPct/100)};
+}
+
+function renderSuggestion(pay){
+  const area=document.getElementById('suggestion-area');
+  const s=computeSuggestion(pay);
+  if(!s||pay===suggestionDismissedForPay){area.innerHTML='';return;}
+  pendingSuggestion=s;
+  area.innerHTML=`<div class="suggestion-box">
+    <p class="suggestion-title">⚡ Smart suggestion</p>
+    <p class="suggestion-body">Your <strong style="color:#f0f0f0">Roth IRA</strong> only needs <strong style="color:#f0f0f0">${fmt(s.iraRemaining)}</strong> more to reach the $7,000 limit. At ${s.oldIraPct}% you'd overshoot — you only need <strong style="color:#f0f0f0">${s.newIraPct}%</strong> this check. The freed-up ${s.freedPct}% (<strong style="color:#f0f0f0">${fmt(s.extraToLoans)}</strong>) goes to student loans instead.</p>
+    <div>
+      <div class="change-row"><span style="color:#ddd">${s.iraBucket.name}</span><div class="change-vals"><span>${s.oldIraPct}%</span><span style="color:#555">→</span><span class="change-new down">${s.newIraPct}%</span></div></div>
+      <div class="change-row"><span style="color:#ddd">${s.loanBucket.name}</span><div class="change-vals"><span>${s.oldLoanPct}%</span><span style="color:#555">→</span><span class="change-new up">${s.newLoanPct}%</span></div></div>
+    </div>
+    <div class="suggestion-btns">
+      <button class="btn-approve" onclick="approveSuggestion()">Apply for this paycheck</button>
+      <button class="btn-dismiss" onclick="dismissSuggestion()">Dismiss</button>
+    </div>
+  </div>`;
+}
+
+function approveSuggestion(){
+  if(!pendingSuggestion) return;
+  pendingSuggestion.iraBucket.pct=pendingSuggestion.newIraPct;
+  pendingSuggestion.loanBucket.pct=pendingSuggestion.newLoanPct;
+  pendingSuggestion=null;
+  document.getElementById('suggestion-area').innerHTML='';
+  renderSplit();renderSettings();showMsg('Suggestion applied!',false);
+}
+function dismissSuggestion(){
+  suggestionDismissedForPay=parseFloat(document.getElementById('pay-input').value)||0;
+  pendingSuggestion=null;document.getElementById('suggestion-area').innerHTML='';
+}
+
+// ---- SPLIT ----
+function recalcSplit(){savePayAmount();renderSplit();}
+function renderSplit(){
+  const pay=parseFloat(document.getElementById('pay-input').value)||0;
+  const total=totalPct();
+  const leftover=pay-(pay*total/100);
+  const pctEl=document.getElementById('pct-display');
+  pctEl.textContent=Math.round(total)+'%';pctEl.style.color=total>100?'#e24b4a':'#f0f0f0';
+  const leftEl=document.getElementById('leftover-display');
+  leftEl.textContent=fmt(leftover);leftEl.style.color=leftover<0?'#e24b4a':leftover>0?'#1D9E75':'#f0f0f0';
+  renderSuggestion(pay);
+  const wrap=document.getElementById('split-buckets');wrap.innerHTML='';
+  state.buckets.forEach((b,i)=>{
+    const amt=pay*(parseFloat(b.pct)||0)/100;
+    const row=document.createElement('div');row.className='bucket-row';
+    row.innerHTML=`<div class="dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <span style="flex:1;min-width:0;font-size:14px;font-weight:500;color:#f0f0f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.name}</span>
+      <div class="bar-wrap"><div class="bar" style="background:${COLORS[i%COLORS.length]};width:${Math.min(parseFloat(b.pct)||0,100)}%"></div></div>
+      <span style="font-size:12px;color:#888;width:28px;text-align:right;flex-shrink:0">${Math.round(parseFloat(b.pct)||0)}%</span>
+      <span class="amt">${fmt(amt)}</span>`;
+    wrap.appendChild(row);
+  });
+  const canvas=document.getElementById('donut-chart');
+  const ctx=canvas.getContext('2d');
+  const data=state.buckets.map(b=>pay*(parseFloat(b.pct)||0)/100);
+  const t2=data.reduce((a,b)=>a+b,0);
+  ctx.clearRect(0,0,200,200);
+  if(t2){let angle=-Math.PI/2;data.forEach((val,i)=>{const sweep=(val/t2)*2*Math.PI;ctx.beginPath();ctx.moveTo(100,100);ctx.arc(100,100,72,angle,angle+sweep);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();angle+=sweep;});ctx.beginPath();ctx.arc(100,100,44,0,2*Math.PI);ctx.fillStyle='#242424';ctx.fill();}
+  document.getElementById('donut-legend').innerHTML=state.buckets.map((b,i)=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#888"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></div>${b.name}</div>`).join('');
+  renderTrackers();
+}
+
+// ---- TIPS ----
+function renderTipBucketSettings(){
+  const wrap=document.getElementById('tip-bucket-settings');wrap.innerHTML='';
+  state.tipBuckets.forEach((b,i)=>{
+    const row=document.createElement('div');row.className='bucket-row';
+    const dot=document.createElement('div');dot.className='dot';dot.style.background=COLORS[i%COLORS.length];
+    const nameSpan=document.createElement('span');nameSpan.className='editable bucket-name-edit';nameSpan.textContent=b.name;nameSpan.onclick=()=>makeTipEditable(nameSpan,b.id,'name');
+    const pctSpan=document.createElement('span');pctSpan.className='editable bucket-pct-edit';pctSpan.textContent=b.pct;pctSpan.onclick=()=>makeTipEditable(pctSpan,b.id,'pct');
+    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:#666;flex-shrink:0';pctLabel.textContent='%';
+    const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.innerHTML='🗑';delBtn.onclick=()=>{state.tipBuckets=state.tipBuckets.filter(x=>x.id!==b.id);saveState();renderTipBucketSettings();renderTipBreakdown();};
+    row.appendChild(dot);row.appendChild(nameSpan);row.appendChild(pctSpan);row.appendChild(pctLabel);row.appendChild(delBtn);
+    wrap.appendChild(row);
+  });
+  const addBtn=document.createElement('button');
+  addBtn.style.cssText='margin-top:10px;font-size:13px;padding:5px 12px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#f0f0f0';
+  addBtn.textContent='+ Add tip bucket';
+  addBtn.onclick=()=>{state.tipBuckets.push({id:state.tipNextId++,name:'New bucket',pct:0});saveState();renderTipBucketSettings();};
+  wrap.appendChild(addBtn);
+  const t=totalPct(state.tipBuckets);
+  const el=document.getElementById('tip-pct-total');
+  el.textContent=`Total: ${Math.round(t)}%`+(t!==100?' — adjust to reach 100%':'');
+  el.style.color=t===100?'#4caf84':'#e08060';
+}
+
+function makeTipEditable(el,bid,field){
+  const orig=el.textContent;
+  const inp=document.createElement('input');
+  inp.type=field==='pct'?'number':'text';
+  inp.className='inline-input '+(field==='pct'?'pct-inline':'name-inline');
+  inp.value=orig;if(field==='pct'){inp.min=0;inp.max=100;inp.step=1;}
+  el.replaceWith(inp);inp.focus();inp.select();
+  function commit(){
+    const b=state.tipBuckets.find(x=>x.id===bid);
+    if(b){field==='pct'?b.pct=parseFloat(inp.value)||0:b.name=inp.value||orig;saveState();}
+    renderTipBucketSettings();renderTipBreakdown();
+  }
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=orig;inp.blur();}});
+}
+
+function renderTipBreakdown(){
+  const amt=parseFloat(document.getElementById('tip-amount').value)||0;
+  const wrap=document.getElementById('tip-breakdown-preview');
+  if(!amt){wrap.innerHTML='';return;}
+  let html='<p style="font-size:13px;font-weight:500;color:#888;margin:0 0 8px">Suggested breakdown</p>';
+  state.tipBuckets.forEach((b,i)=>{
+    const d=amt*(parseFloat(b.pct)||0)/100;
+    html+=`<div class="bucket-row"><div class="dot" style="background:${COLORS[i%COLORS.length]}"></div><span style="flex:1;font-size:14px;color:#f0f0f0">${b.name}</span><span style="font-size:13px;font-weight:500;color:#f0f0f0">${fmt(d)}</span></div>`;
+  });
+  wrap.innerHTML=html;
+  renderTipBucketSettings();
+}
+
+function logTips(){
+  const amt=parseFloat(document.getElementById('tip-amount').value)||0;
+  if(!amt){showTipMsg('Enter a tip amount first.',true);return;}
+  const t=totalPct(state.tipBuckets);
+  if(Math.round(t)!==100){showTipMsg('Tip bucket percentages must total 100%.',true);return;}
+  const dateVal=document.getElementById('tip-date').value;
+  const dateStr=dateVal?new Date(dateVal+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const note=document.getElementById('tip-note').value.trim();
+  const entry={date:dateStr,total:amt,note,buckets:state.tipBuckets.map(b=>({name:b.name,amt:round2(amt*(parseFloat(b.pct)||0)/100)}))};
+  state.tipHistory.push(entry);
+
+  saveState();
+  document.getElementById('tip-amount').value='';
+  document.getElementById('tip-note').value='';
+  document.getElementById('tip-breakdown-preview').innerHTML='';
+  renderTipHistory();renderTrackers();
+  showTipMsg('Tips logged!',false);
+}
+
+function renderTipHistory(){
+  const wrap=document.getElementById('tip-history-list');
+  const stats=document.getElementById('tip-stats');
+  if(!state.tipHistory.length){wrap.innerHTML='<p style="font-size:14px;color:#666">No tips logged yet.</p>';stats.innerHTML='';return;}
+  wrap.innerHTML='';
+  [...state.tipHistory].reverse().forEach(h=>{
+    const row=document.createElement('div');row.className='tip-row';
+    const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
+    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:12px;color:#666">${h.date}</span>
+      <span style="font-size:15px;font-weight:500;color:#1D9E75">${fmt(h.total)}</span>
+    </div>
+    <div style="margin-top:4px">${pills}</div>
+    ${h.note?`<p style="font-size:12px;color:#666;margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
+    wrap.appendChild(row);
+  });
+  const totalTips=state.tipHistory.reduce((a,h)=>a+h.total,0);
+  const avgTips=totalTips/state.tipHistory.length;
+  stats.innerHTML=`
+    <div class="metric"><p class="metric-label">Shifts logged</p><p class="metric-value">${state.tipHistory.length}</p></div>
+    <div class="metric"><p class="metric-label">Total tips</p><p class="metric-value">${fmt(totalTips)}</p></div>
+    <div class="metric"><p class="metric-label">Avg per shift</p><p class="metric-value">${fmt(avgTips)}</p></div>`;
+}
+
+function clearTips(){if(!state.tipHistory.length)return;state.tipHistory=[];saveState();renderTipHistory();}
+
+// ---- BUCKETS ----
+function makeEditable(el,bid,field){
+  const orig=el.textContent;
+  const inp=document.createElement('input');
+  inp.type=field==='pct'?'number':'text';
+  inp.className='inline-input '+(field==='pct'?'pct-inline':'name-inline');
+  inp.value=orig;if(field==='pct'){inp.min=0;inp.max=100;inp.step=1;}
+  el.replaceWith(inp);inp.focus();inp.select();
+  function commit(){
+    const b=state.buckets.find(x=>x.id===bid);
+    if(b){field==='pct'?b.pct=parseFloat(inp.value)||0:b.name=inp.value||orig;saveState();}
+    renderSettings();renderSplit();
+  }
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=orig;inp.blur();}});
+}
+
+function renderSettings(){
+  const wrap=document.getElementById('settings-buckets');wrap.innerHTML='';
+  state.buckets.forEach((b,i)=>{
+    const row=document.createElement('div');row.className='bucket-row';
+    const dot=document.createElement('div');dot.className='dot';dot.style.background=COLORS[i%COLORS.length];
+    const nameSpan=document.createElement('span');nameSpan.className='editable bucket-name-edit';nameSpan.textContent=b.name;nameSpan.onclick=()=>makeEditable(nameSpan,b.id,'name');
+    const pctSpan=document.createElement('span');pctSpan.className='editable bucket-pct-edit';pctSpan.textContent=b.pct;pctSpan.onclick=()=>makeEditable(pctSpan,b.id,'pct');
+    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:#666;flex-shrink:0';pctLabel.textContent='%';
+    const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.innerHTML='🗑';delBtn.onclick=()=>deleteBucket(b.id);
+    row.appendChild(dot);row.appendChild(nameSpan);row.appendChild(pctSpan);row.appendChild(pctLabel);row.appendChild(delBtn);
+    wrap.appendChild(row);
+  });
+}
+
+// ---- HISTORY ----
+function renderHistory(){
+  const wrap=document.getElementById('history-list');
+  const statsWrap=document.getElementById('history-stats');
+  if(!state.history.length){wrap.innerHTML='<p style="font-size:14px;color:#666">No paychecks logged yet.</p>';statsWrap.innerHTML='';return;}
+  wrap.innerHTML='';
+  [...state.history].reverse().forEach(h=>{
+    const row=document.createElement('div');row.className='history-row';
+    const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
+    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#666">${h.date}</span><span style="font-size:15px;font-weight:500;color:#f0f0f0">${fmt(h.total)}</span></div>
+      <div style="margin-top:4px">${pills}</div>
+      ${h.note?`<p style="font-size:12px;color:#666;margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
+    wrap.appendChild(row);
+  });
+  const sum=(kw)=>state.history.reduce((a,h)=>{const s=h.buckets.find(b=>b.name.toLowerCase().includes(kw));return a+(s?s.amt:0);},0);
+  statsWrap.innerHTML=`
+    <div class="metric"><p class="metric-label">Paychecks logged</p><p class="metric-value">${state.history.length}</p></div>
+    <div class="metric"><p class="metric-label">Total to savings</p><p class="metric-value">${fmt(sum('saving'))}</p></div>
+    <div class="metric"><p class="metric-label">Total to Roth IRA</p><p class="metric-value">${fmt(sum('ira')+sum('roth'))}</p></div>
+    <div class="metric"><p class="metric-label">Total to loans</p><p class="metric-value">${fmt(sum('loan'))}</p></div>`;
+}
+
+// ---- TRACKERS ----
+function renderTrackers(){
+  const pay=parseFloat(document.getElementById('pay-input').value)||0;
+
+  // IRA
+  const ira=parseFloat(document.getElementById('ira-contributed').value)||0;
+  const iraPct=Math.min(ira/7000*100,100);
+  document.getElementById('ira-bar').style.width=iraPct.toFixed(1)+'%';
+  document.getElementById('ira-pct-label').textContent=iraPct.toFixed(1)+'% of limit used';
+  document.getElementById('ira-remaining-label').textContent=fmt(Math.max(7000-ira,0))+' remaining';
+  const iraBucket=state.buckets.find(b=>b.name.toLowerCase().includes('ira')||b.name.toLowerCase().includes('roth'));
+  if(iraBucket&&pay){
+    const perCheck=pay*(parseFloat(iraBucket.pct)||0)/100;
+    const needed=Math.max(7000-ira,0);
+    document.getElementById('ira-auto-note').textContent=needed<=0?'You have reached the 2025 contribution limit.':perCheck>0?`At ${fmt(perCheck)} per paycheck, you'll hit the limit in ~${Math.ceil(needed/perCheck)} more paycheck${Math.ceil(needed/perCheck)===1?'':'s'}.`:'';
+  } else document.getElementById('ira-auto-note').textContent='';
+
+  // Collections
+  const colOrig=parseFloat(document.getElementById('collections-original').value)||0;
+  const colCurr=parseFloat(document.getElementById('collections-current').value)||0;
+  const colPct=colOrig>0?Math.min(Math.max(colOrig-colCurr,0)/colOrig*100,100):0;
+  document.getElementById('collections-bar').style.width=colPct.toFixed(1)+'%';
+  document.getElementById('collections-pct-label').textContent=colPct.toFixed(1)+'% paid off';
+  document.getElementById('collections-remaining-label').textContent=colCurr>0?fmt(colCurr)+' remaining':'';
+  const colBucket=state.buckets.find(b=>b.name.toLowerCase().includes('collection'));
+  if(colBucket&&pay&&colCurr>0){
+    const perCheck=pay*(parseFloat(colBucket.pct)||0)/100;
+    if(perCheck>0){const checks=Math.ceil(colCurr/perCheck);document.getElementById('collections-auto-note').textContent=`At ${fmt(perCheck)} per paycheck, you'll clear this balance in ~${checks} more paycheck${checks===1?'':'s'}.`;}
+    else document.getElementById('collections-auto-note').textContent='Add a "Collections" bucket to your paycheck split to see a payoff estimate here.';
+  } else if(colCurr<=0&&colOrig>0){
+    document.getElementById('collections-auto-note').textContent='Collections balance cleared!';
+    document.getElementById('collections-auto-note').style.color='#4caf84';
+  } else {
+    document.getElementById('collections-auto-note').textContent=colOrig>0?'Add a "Collections" bucket to your paycheck split to see a payoff estimate here.'  :'';
+  }
+
+  // Loans with interest
+  const orig=parseFloat(document.getElementById('loan-original').value)||0;
+  const curr=parseFloat(document.getElementById('loan-current').value)||0;
+  const rate=parseFloat(document.getElementById('loan-rate').value)||0;
+  const loanPct=orig>0?Math.min(Math.max(orig-curr,0)/orig*100,100):0;
+  document.getElementById('loan-bar').style.width=loanPct.toFixed(1)+'%';
+  document.getElementById('loan-pct-label').textContent=loanPct.toFixed(1)+'% paid off';
+  document.getElementById('loan-remaining-label').textContent=curr>0?fmt(curr)+' remaining':'';
+  const loanBucket=state.buckets.find(b=>b.name.toLowerCase().includes('loan'));
+  if(loanBucket&&pay&&curr>0){
+    const perCheck=pay*(parseFloat(loanBucket.pct)||0)/100;
+    if(perCheck>0){
+      if(rate>0){
+        // Monthly payment math
+        const monthlyRate=rate/100/12;
+        const checksPerMonth=26/12; // biweekly
+        const payPerMonth=perCheck*checksPerMonth;
+        if(payPerMonth>curr*monthlyRate){
+          // solve n months: n = -ln(1 - r*PV/PMT) / ln(1+r)
+          const n=-Math.log(1-monthlyRate*curr/payPerMonth)/Math.log(1+monthlyRate);
+          const months=Math.ceil(n);
+          const totalPaid=payPerMonth*months;
+          const totalInterest=round2(totalPaid-curr);
+          document.getElementById('loan-auto-note').innerHTML=`At ${fmt(perCheck)} per paycheck with ${rate}% interest:<br>Paid off in ~<strong style="color:#f0f0f0">${months} month${months===1?'':'s'}</strong> (${Math.ceil(months/12*10)/10} years).<br>Total interest paid: <strong style="color:#e08060">${fmt(totalInterest)}</strong>`;
+        } else {
+          document.getElementById('loan-auto-note').textContent='Your payment may not be covering interest — consider increasing your loan bucket.';
+          document.getElementById('loan-auto-note').style.color='#e24b4a';
+        }
+      } else {
+        const checks=Math.ceil(curr/perCheck);
+        document.getElementById('loan-auto-note').textContent=`At ${fmt(perCheck)} per paycheck, paid off in ~${checks} more paycheck${checks===1?'':'s'} (enter interest rate above for a more accurate estimate).`;
+      }
+    } else document.getElementById('loan-auto-note').textContent='';
+  } else document.getElementById('loan-auto-note').textContent='';
+}
+
+// ---- LOG PAYCHECK ----
+function logPaycheck(){
+  const pay=parseFloat(document.getElementById('pay-input').value)||0;
+  if(!pay){showMsg('Enter a paycheck amount first.',true);return;}
+  const dateStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const note=document.getElementById('paycheck-note').value.trim();
+  state.history.push({date:dateStr,total:pay,note,buckets:state.buckets.map(b=>({name:b.name,amt:round2(pay*(parseFloat(b.pct)||0)/100)}))});
+  const prevT={...trackers};
+  const iraBucket=state.buckets.find(b=>b.name.toLowerCase().includes('ira')||b.name.toLowerCase().includes('roth'));
+  if(iraBucket){const c=parseFloat(document.getElementById('ira-contributed').value)||0;document.getElementById('ira-contributed').value=Math.min(c+pay*(parseFloat(iraBucket.pct)||0)/100,7000).toFixed(2);}
+  const loanBucket=state.buckets.find(b=>b.name.toLowerCase().includes('loan'));
+  if(loanBucket){const c=parseFloat(document.getElementById('loan-current').value)||0;if(c>0)document.getElementById('loan-current').value=Math.max(c-pay*(parseFloat(loanBucket.pct)||0)/100,0).toFixed(2);}
+  const colBucketLog=state.buckets.find(b=>b.name.toLowerCase().includes('collection'));
+  if(colBucketLog){const c=parseFloat(document.getElementById('collections-current').value)||0;if(c>0)document.getElementById('collections-current').value=Math.max(c-pay*(parseFloat(colBucketLog.pct)||0)/100,0).toFixed(2);}
+  saveTrackers();checkMilestones(prevT);
+  suggestionDismissedForPay=null;pendingSuggestion=null;
+  saveState();renderAll();
+  document.getElementById('paycheck-note').value='';
+  showMsg('Paycheck logged!',false);
+}
+
+function showMsg(txt,isErr){const el=document.getElementById('log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
+function showTipMsg(txt,isErr){const el=document.getElementById('tip-log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
+function clearHistory(){if(!state.history.length)return;state.history=[];saveState();renderHistory();}
+function deleteBucket(id){state.buckets=state.buckets.filter(x=>x.id!==id);saveState();renderAll();}
+function addBucket(){state.buckets.push({id:state.nextId++,name:'New bucket',pct:0});saveState();renderAll();}
+
+function renderAll(){renderSplit();renderSettings();renderHistory();renderTrackers();renderTipBucketSettings();renderTipHistory();}
+
+function showTab(tab){
+  ['split','tips','settings','history','trackers'].forEach(t=>{
+    document.getElementById('view-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('tab-'+t).className='tab-btn'+(t===tab?' active':'');
+  });
+  if(tab==='split')renderSplit();
+  if(tab==='tips'){renderTipBucketSettings();renderTipHistory();}
+}
+
+loadState();
+</script>
+</body>
+</html>
