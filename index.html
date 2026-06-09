@@ -67,7 +67,7 @@
   .change-new.up{color:#4caf84}
   .change-new.down{color:#e08060}
   .suggestion-btns{display:flex;gap:8px;margin-top:12px}
-  .btn-approve{flex:1;padding:7px;font-size:13px;font-weight:500;cursor:pointer;background:#2d5a2d;border:1px solid #3d7a3d;border-radius:6px;color:#f0f0f0}
+  .btn-approve{flex:1;padding:7px;font-size:13px;font-weight:500;cursor:pointer;background:#2d5a2d;border:1px solid #3d7a3d;border-radius:6px;color:var(--text)}
   .btn-approve:hover{background:#3a6e3a}
   .btn-dismiss{padding:7px 14px;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)}
   .btn-dismiss:hover{color:var(--text);border-color:var(--text2)}
@@ -81,9 +81,9 @@
   .theme-toggle:hover{border-color:var(--text2);color:var(--text)}
   .tip-row{padding:10px 0;border-bottom:1px solid #2e2e2e}
   .tip-row:last-child{border-bottom:none}
-  .tip-breakdown{font-size:12px;color:#888;margin-top:4px;line-height:1.6}
-  .goal-bar-label{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-top:4px}
-  .rate-input{font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:60px;text-align:right}
+  .tip-breakdown{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6}
+  .goal-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:4px}
+  .rate-input{font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:60px;text-align:right}
   /* Confetti canvas */
   #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
   .milestone-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--suggestion-bg);border:1px solid #4caf84;border-radius:12px;padding:12px 20px;font-size:14px;color:#4caf84;font-weight:600;z-index:10000;display:none;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
@@ -110,8 +110,8 @@
     <div class="metric">
       <p class="metric-label">Take-home pay</p>
       <div style="display:flex;align-items:center;gap:4px">
-        <span style="font-size:16px;color:#888">$</span>
-        <input type="number" id="pay-input" min="0" style="font-size:22px;font-weight:500;border:none;background:transparent;width:110px;color:#f0f0f0;outline:none" oninput="recalcSplit()" />
+        <span style="font-size:16px;color:var(--text2)">$</span>
+        <input type="number" id="pay-input" min="0" style="font-size:22px;font-weight:500;border:none;background:transparent;width:110px;color:var(--text);outline:none" oninput="recalcSplit()" />
       </div>
     </div>
     <div class="metric"><p class="metric-label">Allocated</p><p class="metric-value" id="pct-display">0%</p></div>
@@ -124,10 +124,10 @@
     <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"></div>
   </div>
   <div class="card" style="margin-bottom:12px">
-    <p class="section-title" style="margin-bottom:6px">Note <span style="font-size:12px;color:#666;font-weight:400">(optional)</span></p>
+    <p class="section-title" style="margin-bottom:6px">Note <span style="font-size:12px;color:var(--text3);font-weight:400">(optional)</span></p>
     <textarea id="paycheck-note" rows="2" placeholder="e.g. got a bonus, short week..."></textarea>
   </div>
-  <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:#2c2c2c;border:1px solid #444;border-radius:8px;color:#f0f0f0">
+  <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text)">
     ✓ Log this paycheck
   </button>
   <p id="log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
@@ -140,35 +140,35 @@
     <p class="hint">Enter your tip amount and we'll suggest how to allocate it based on your bucket percentages — but tips are unpredictable, so you set your own split below.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Tips earned</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Tips earned</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="tip-amount" min="0" style="font-size:22px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:120px" oninput="renderTipBreakdown()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="tip-amount" min="0" style="font-size:22px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:120px" oninput="renderTipBreakdown()" />
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Shift date</p>
-        <input type="date" id="tip-date" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:100%" />
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Shift date</p>
+        <input type="date" id="tip-date" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:100%" />
       </div>
     </div>
     <div style="margin-bottom:1rem">
-      <p style="font-size:12px;color:#888;margin:0 0 6px">Note <span style="color:#555">(optional)</span></p>
+      <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Note <span style="color:var(--text3)">(optional)</span></p>
       <textarea id="tip-note" rows="2" placeholder="e.g. Saturday night, busy shift..."></textarea>
     </div>
 
     <p class="section-title" style="font-size:14px;margin-bottom:8px">How to split these tips</p>
     <p class="hint">Set percentages for tip allocation — can differ from your paycheck buckets since tips are cash and more variable.</p>
     <div id="tip-bucket-settings"></div>
-    <p style="font-size:12px;color:#888;margin:8px 0 4px" id="tip-pct-total"></p>
+    <p style="font-size:12px;color:var(--text2);margin:8px 0 4px" id="tip-pct-total"></p>
 
     <div id="tip-breakdown-preview" style="margin-top:12px"></div>
   </div>
 
   <div style="margin-bottom:12px">
-    <p style="font-size:12px;color:#888;margin:0 0 6px">Tip allocation (must total 100%)</p>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Tip allocation (must total 100%)</p>
   </div>
 
-  <button onclick="logTips()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:#2c2c2c;border:1px solid #444;border-radius:8px;color:#f0f0f0">
+  <button onclick="logTips()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text)">
     ✓ Log this shift's tips
   </button>
   <p id="tip-log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
@@ -176,9 +176,9 @@
   <div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <p class="section-title" style="margin:0">Tip history</p>
-      <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#888">Clear</button>
+      <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear</button>
     </div>
-    <div id="tip-history-list"><p style="font-size:14px;color:#666">No tips logged yet.</p></div>
+    <div id="tip-history-list"><p style="font-size:14px;color:var(--text3)">No tips logged yet.</p></div>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
@@ -190,7 +190,7 @@
     <p class="section-title">Your paycheck buckets</p>
     <p class="hint">Click a name or number to edit, then press Enter or click away to save.</p>
     <div id="settings-buckets"></div>
-    <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#f0f0f0">+ Add bucket</button>
+    <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text)">+ Add bucket</button>
   </div>
 </div>
 
@@ -199,9 +199,9 @@
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <p class="section-title" style="margin:0">Paycheck log</p>
-      <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#888">Clear all</button>
+      <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
     </div>
-    <div id="history-list"><p style="font-size:14px;color:#666">No paychecks logged yet.</p></div>
+    <div id="history-list"><p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
 </div>
@@ -214,45 +214,45 @@
     <p class="section-title">Roth IRA — 2025 contribution tracker</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Contributed so far</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Contributed so far</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="ira-contributed" min="0" max="7000" style="font-size:18px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:100px" oninput="saveTrackers();recalcSplit()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="ira-contributed" min="0" max="7000" style="font-size:18px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:100px" oninput="saveTrackers();recalcSplit()" />
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Annual limit</p>
-        <p style="font-size:18px;font-weight:500;margin:0;color:#f0f0f0">$7,000</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Annual limit</p>
+        <p style="font-size:18px;font-weight:500;margin:0;color:var(--text)">$7,000</p>
       </div>
     </div>
     <div class="progress-track"><div class="progress-fill" id="ira-bar" style="background:#7F77DD;width:0%"></div></div>
     <div class="goal-bar-label"><span id="ira-pct-label">0% of limit used</span><span id="ira-remaining-label">$7,000 remaining</span></div>
-    <p id="ira-auto-note" style="font-size:12px;color:#888;margin:10px 0 0"></p>
+    <p id="ira-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0"></p>
   </div>
 
   <!-- Collections -->
   <div class="card">
     <p class="section-title">Collections payoff tracker</p>
-    <p style="font-size:12px;color:#888;margin:-6px 0 12px">Track any collections accounts you're paying down.</p>
+    <p style="font-size:12px;color:var(--text2);margin:-6px 0 12px">Track any collections accounts you're paying down.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Original balance</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Original balance</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="collections-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="collections-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Current balance</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Current balance</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="collections-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="collections-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
         </div>
       </div>
     </div>
     <div class="progress-track"><div class="progress-fill" id="collections-bar" style="background:#D85A30;width:0%"></div></div>
     <div class="goal-bar-label"><span id="collections-pct-label">0% paid off</span><span id="collections-remaining-label"></span></div>
-    <p id="collections-auto-note" style="font-size:12px;color:#888;margin:10px 0 0;line-height:1.6"></p>
+    <p id="collections-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0;line-height:1.6"></p>
   </div>
 
   <!-- Student Loans -->
@@ -260,30 +260,30 @@
     <p class="section-title">Student loan payoff tracker</p>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Original balance</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Original balance</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="loan-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="loan-original" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Current balance</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Current balance</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#888">$</span>
-          <input type="number" id="loan-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:var(--text2)">$</span>
+          <input type="number" id="loan-current" min="0" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:80px" oninput="saveTrackers();renderTrackers()" />
         </div>
       </div>
       <div>
-        <p style="font-size:12px;color:#888;margin:0 0 6px">Interest rate</p>
+        <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Interest rate</p>
         <div style="display:flex;align-items:center;gap:4px">
-          <input type="number" id="loan-rate" min="0" max="30" step="0.1" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid #444;background:transparent;color:#f0f0f0;outline:none;width:50px;text-align:right" oninput="saveTrackers();renderTrackers()" />
-          <span style="color:#888;font-size:13px">%</span>
+          <input type="number" id="loan-rate" min="0" max="30" step="0.1" style="font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:50px;text-align:right" oninput="saveTrackers();renderTrackers()" />
+          <span style="color:var(--text2);font-size:13px">%</span>
         </div>
       </div>
     </div>
     <div class="progress-track"><div class="progress-fill" id="loan-bar" style="background:#1D9E75;width:0%"></div></div>
     <div class="goal-bar-label"><span id="loan-pct-label">0% paid off</span><span id="loan-remaining-label"></span></div>
-    <p id="loan-auto-note" style="font-size:12px;color:#888;margin:10px 0 0;line-height:1.6"></p>
+    <p id="loan-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0;line-height:1.6"></p>
   </div>
 </div>
 
@@ -421,10 +421,10 @@ function renderSuggestion(pay){
   pendingSuggestion=s;
   area.innerHTML=`<div class="suggestion-box">
     <p class="suggestion-title">⚡ Smart suggestion</p>
-    <p class="suggestion-body">Your <strong style="color:#f0f0f0">Roth IRA</strong> only needs <strong style="color:#f0f0f0">${fmt(s.iraRemaining)}</strong> more to reach the $7,000 limit. At ${s.oldIraPct}% you'd overshoot — you only need <strong style="color:#f0f0f0">${s.newIraPct}%</strong> this check. The freed-up ${s.freedPct}% (<strong style="color:#f0f0f0">${fmt(s.extraToLoans)}</strong>) goes to student loans instead.</p>
+    <p class="suggestion-body">Your <strong style="color:var(--text)">Roth IRA</strong> only needs <strong style="color:var(--text)">${fmt(s.iraRemaining)}</strong> more to reach the $7,000 limit. At ${s.oldIraPct}% you'd overshoot — you only need <strong style="color:var(--text)">${s.newIraPct}%</strong> this check. The freed-up ${s.freedPct}% (<strong style="color:var(--text)">${fmt(s.extraToLoans)}</strong>) goes to student loans instead.</p>
     <div>
-      <div class="change-row"><span style="color:#ddd">${s.iraBucket.name}</span><div class="change-vals"><span>${s.oldIraPct}%</span><span style="color:#555">→</span><span class="change-new down">${s.newIraPct}%</span></div></div>
-      <div class="change-row"><span style="color:#ddd">${s.loanBucket.name}</span><div class="change-vals"><span>${s.oldLoanPct}%</span><span style="color:#555">→</span><span class="change-new up">${s.newLoanPct}%</span></div></div>
+      <div class="change-row"><span style="color:var(--text)">${s.iraBucket.name}</span><div class="change-vals"><span>${s.oldIraPct}%</span><span style="color:var(--text3)">→</span><span class="change-new down">${s.newIraPct}%</span></div></div>
+      <div class="change-row"><span style="color:var(--text)">${s.loanBucket.name}</span><div class="change-vals"><span>${s.oldLoanPct}%</span><span style="color:var(--text3)">→</span><span class="change-new up">${s.newLoanPct}%</span></div></div>
     </div>
     <div class="suggestion-btns">
       <button class="btn-approve" onclick="approveSuggestion()">Apply for this paycheck</button>
@@ -453,18 +453,18 @@ function renderSplit(){
   const total=totalPct();
   const leftover=pay-(pay*total/100);
   const pctEl=document.getElementById('pct-display');
-  pctEl.textContent=Math.round(total)+'%';pctEl.style.color=total>100?'#e24b4a':'#f0f0f0';
+  pctEl.textContent=Math.round(total)+'%';pctEl.style.color=total>100?'#e24b4a':'var(--text)';
   const leftEl=document.getElementById('leftover-display');
-  leftEl.textContent=fmt(leftover);leftEl.style.color=leftover<0?'#e24b4a':leftover>0?'#1D9E75':'#f0f0f0';
+  leftEl.textContent=fmt(leftover);leftEl.style.color=leftover<0?'#e24b4a':leftover>0?'#1D9E75':'var(--text)';
   renderSuggestion(pay);
   const wrap=document.getElementById('split-buckets');wrap.innerHTML='';
   state.buckets.forEach((b,i)=>{
     const amt=pay*(parseFloat(b.pct)||0)/100;
     const row=document.createElement('div');row.className='bucket-row';
     row.innerHTML=`<div class="dot" style="background:${COLORS[i%COLORS.length]}"></div>
-      <span style="flex:1;min-width:0;font-size:14px;font-weight:500;color:#f0f0f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.name}</span>
+      <span style="flex:1;min-width:0;font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.name}</span>
       <div class="bar-wrap"><div class="bar" style="background:${COLORS[i%COLORS.length]};width:${Math.min(parseFloat(b.pct)||0,100)}%"></div></div>
-      <span style="font-size:12px;color:#888;width:28px;text-align:right;flex-shrink:0">${Math.round(parseFloat(b.pct)||0)}%</span>
+      <span style="font-size:12px;color:var(--text2);width:28px;text-align:right;flex-shrink:0">${Math.round(parseFloat(b.pct)||0)}%</span>
       <span class="amt">${fmt(amt)}</span>`;
     wrap.appendChild(row);
   });
@@ -486,13 +486,13 @@ function renderTipBucketSettings(){
     const dot=document.createElement('div');dot.className='dot';dot.style.background=COLORS[i%COLORS.length];
     const nameSpan=document.createElement('span');nameSpan.className='editable bucket-name-edit';nameSpan.textContent=b.name;nameSpan.onclick=()=>makeTipEditable(nameSpan,b.id,'name');
     const pctSpan=document.createElement('span');pctSpan.className='editable bucket-pct-edit';pctSpan.textContent=b.pct;pctSpan.onclick=()=>makeTipEditable(pctSpan,b.id,'pct');
-    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:#666;flex-shrink:0';pctLabel.textContent='%';
+    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:var(--text3);flex-shrink:0';pctLabel.textContent='%';
     const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.innerHTML='🗑';delBtn.onclick=()=>{state.tipBuckets=state.tipBuckets.filter(x=>x.id!==b.id);saveState();renderTipBucketSettings();renderTipBreakdown();};
     row.appendChild(dot);row.appendChild(nameSpan);row.appendChild(pctSpan);row.appendChild(pctLabel);row.appendChild(delBtn);
     wrap.appendChild(row);
   });
   const addBtn=document.createElement('button');
-  addBtn.style.cssText='margin-top:10px;font-size:13px;padding:5px 12px;cursor:pointer;background:#2c2c2c;border:1px solid #444;border-radius:6px;color:#f0f0f0';
+  addBtn.style.cssText='margin-top:10px;font-size:13px;padding:5px 12px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text)';
   addBtn.textContent='+ Add tip bucket';
   addBtn.onclick=()=>{state.tipBuckets.push({id:state.tipNextId++,name:'New bucket',pct:0});saveState();renderTipBucketSettings();};
   wrap.appendChild(addBtn);
@@ -522,10 +522,10 @@ function renderTipBreakdown(){
   const amt=parseFloat(document.getElementById('tip-amount').value)||0;
   const wrap=document.getElementById('tip-breakdown-preview');
   if(!amt){wrap.innerHTML='';return;}
-  let html='<p style="font-size:13px;font-weight:500;color:#888;margin:0 0 8px">Suggested breakdown</p>';
+  let html='<p style="font-size:13px;font-weight:500;color:var(--text2);margin:0 0 8px">Suggested breakdown</p>';
   state.tipBuckets.forEach((b,i)=>{
     const d=amt*(parseFloat(b.pct)||0)/100;
-    html+=`<div class="bucket-row"><div class="dot" style="background:${COLORS[i%COLORS.length]}"></div><span style="flex:1;font-size:14px;color:#f0f0f0">${b.name}</span><span style="font-size:13px;font-weight:500;color:#f0f0f0">${fmt(d)}</span></div>`;
+    html+=`<div class="bucket-row"><div class="dot" style="background:${COLORS[i%COLORS.length]}"></div><span style="flex:1;font-size:14px;color:var(--text)">${b.name}</span><span style="font-size:13px;font-weight:500;color:var(--text)">${fmt(d)}</span></div>`;
   });
   wrap.innerHTML=html;
   renderTipBucketSettings();
@@ -553,17 +553,17 @@ function logTips(){
 function renderTipHistory(){
   const wrap=document.getElementById('tip-history-list');
   const stats=document.getElementById('tip-stats');
-  if(!state.tipHistory.length){wrap.innerHTML='<p style="font-size:14px;color:#666">No tips logged yet.</p>';stats.innerHTML='';return;}
+  if(!state.tipHistory.length){wrap.innerHTML='<p style="font-size:14px;color:var(--text3)">No tips logged yet.</p>';stats.innerHTML='';return;}
   wrap.innerHTML='';
   [...state.tipHistory].reverse().forEach(h=>{
     const row=document.createElement('div');row.className='tip-row';
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
     row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline">
-      <span style="font-size:12px;color:#666">${h.date}</span>
+      <span style="font-size:12px;color:var(--text3)">${h.date}</span>
       <span style="font-size:15px;font-weight:500;color:#1D9E75">${fmt(h.total)}</span>
     </div>
     <div style="margin-top:4px">${pills}</div>
-    ${h.note?`<p style="font-size:12px;color:#666;margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
+    ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
     wrap.appendChild(row);
   });
   const totalTips=state.tipHistory.reduce((a,h)=>a+h.total,0);
@@ -600,7 +600,7 @@ function renderSettings(){
     const dot=document.createElement('div');dot.className='dot';dot.style.background=COLORS[i%COLORS.length];
     const nameSpan=document.createElement('span');nameSpan.className='editable bucket-name-edit';nameSpan.textContent=b.name;nameSpan.onclick=()=>makeEditable(nameSpan,b.id,'name');
     const pctSpan=document.createElement('span');pctSpan.className='editable bucket-pct-edit';pctSpan.textContent=b.pct;pctSpan.onclick=()=>makeEditable(pctSpan,b.id,'pct');
-    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:#666;flex-shrink:0';pctLabel.textContent='%';
+    const pctLabel=document.createElement('span');pctLabel.style.cssText='font-size:12px;color:var(--text3);flex-shrink:0';pctLabel.textContent='%';
     const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.innerHTML='🗑';delBtn.onclick=()=>deleteBucket(b.id);
     row.appendChild(dot);row.appendChild(nameSpan);row.appendChild(pctSpan);row.appendChild(pctLabel);row.appendChild(delBtn);
     wrap.appendChild(row);
@@ -611,14 +611,14 @@ function renderSettings(){
 function renderHistory(){
   const wrap=document.getElementById('history-list');
   const statsWrap=document.getElementById('history-stats');
-  if(!state.history.length){wrap.innerHTML='<p style="font-size:14px;color:#666">No paychecks logged yet.</p>';statsWrap.innerHTML='';return;}
+  if(!state.history.length){wrap.innerHTML='<p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p>';statsWrap.innerHTML='';return;}
   wrap.innerHTML='';
   [...state.history].reverse().forEach(h=>{
     const row=document.createElement('div');row.className='history-row';
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
-    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#666">${h.date}</span><span style="font-size:15px;font-weight:500;color:#f0f0f0">${fmt(h.total)}</span></div>
+    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:var(--text3)">${h.date}</span><span style="font-size:15px;font-weight:500;color:var(--text)">${fmt(h.total)}</span></div>
       <div style="margin-top:4px">${pills}</div>
-      ${h.note?`<p style="font-size:12px;color:#666;margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
+      ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
     wrap.appendChild(row);
   });
   const sum=(kw)=>state.history.reduce((a,h)=>{const s=h.buckets.find(b=>b.name.toLowerCase().includes(kw));return a+(s?s.amt:0);},0);
@@ -688,7 +688,7 @@ function renderTrackers(){
           const months=Math.ceil(n);
           const totalPaid=payPerMonth*months;
           const totalInterest=round2(totalPaid-curr);
-          document.getElementById('loan-auto-note').innerHTML=`At ${fmt(perCheck)} per paycheck with ${rate}% interest:<br>Paid off in ~<strong style="color:#f0f0f0">${months} month${months===1?'':'s'}</strong> (${Math.ceil(months/12*10)/10} years).<br>Total interest paid: <strong style="color:#e08060">${fmt(totalInterest)}</strong>`;
+          document.getElementById('loan-auto-note').innerHTML=`At ${fmt(perCheck)} per paycheck with ${rate}% interest:<br>Paid off in ~<strong style="color:var(--text)">${months} month${months===1?'':'s'}</strong> (${Math.ceil(months/12*10)/10} years).<br>Total interest paid: <strong style="color:#e08060">${fmt(totalInterest)}</strong>`;
         } else {
           document.getElementById('loan-auto-note').textContent='Your payment may not be covering interest — consider increasing your loan bucket.';
           document.getElementById('loan-auto-note').style.color='#e24b4a';
