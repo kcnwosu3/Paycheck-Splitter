@@ -689,12 +689,12 @@ function renderHistory(){
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
     const legend=h.buckets.map((b,i)=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></div><span>${b.name}</span><span style="margin-left:auto;font-weight:500;color:var(--text)">${fmt(b.amt)}</span></div>`).join('');
     row.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none" onclick="toggleHistoryChart(${idx})">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:2px 0" onclick="toggleHistoryChart(${idx})">
         <div><span style="font-size:12px;color:var(--text3)">${h.date}</span> <span style="font-size:15px;font-weight:500;color:var(--text);margin-left:8px">${fmt(h.total)}</span></div>
         <span id="history-arrow-${idx}" style="font-size:11px;color:var(--text3)">▼</span>
       </div>
-      <div style="margin-top:6px">${pills}</div>
-      ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}
+      <div style="margin-top:6px;cursor:pointer;user-select:none" onclick="toggleHistoryChart(${idx})">${pills}</div>
+      ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic;cursor:pointer" onclick="toggleHistoryChart(${idx})">${h.note}</p>`:''}
       <div id="history-chart-${idx}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border2)">
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
           <canvas id="history-donut-${idx}" width="120" height="120" style="flex-shrink:0"></canvas>
