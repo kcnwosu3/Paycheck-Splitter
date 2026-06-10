@@ -285,6 +285,37 @@
     <div class="goal-bar-label"><span id="loan-pct-label">0% paid off</span><span id="loan-remaining-label"></span></div>
     <p id="loan-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0;line-height:1.6"></p>
   </div>
+
+  <!-- How percentages work -->
+  <div class="card" style="margin-top:4px">
+    <p class="section-title">How your percentages work</p>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin:0 0 12px">Every paycheck gets divided by the percentages you set in the <strong style="color:var(--text)">Buckets</strong> tab. They should always add up to 100% — anything under means money is left unallocated, anything over means you've assigned more than you earn.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:4px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Savings account</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Goes into your high-yield savings account each check. Name the bucket anything with "saving" and it auto-tracks.</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:#7F77DD;flex-shrink:0;margin-top:4px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Roth IRA</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Contributed toward your $7,000 annual limit. The smart suggestion will alert you when a check would overshoot the limit and redirect the extra to loans. Name it anything with "IRA" or "Roth".</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:#378ADD;flex-shrink:0;margin-top:4px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Student loans</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Applied directly to your loan balance each check. The tracker accounts for interest so you see your real payoff date. Name it anything with "loan".</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:#D85A30;flex-shrink:0;margin-top:4px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Collections</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Paid toward your collections balance each check. Name it anything with "collection" and it auto-tracks.</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:#639922;flex-shrink:0;margin-top:4px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Everything else</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Rent, food, bills, and fun money. What's left after your financial goals is yours to spend. A common guideline is 50% for essentials and 10–15% for discretionary spending.</p></div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:10px 12px;background:var(--card2);border-radius:8px;border-left:3px solid #7F77DD">
+      <p style="font-size:12px;color:var(--text2);margin:0;line-height:1.6"><strong style="color:var(--text)">Tip money works differently.</strong> Tips are unpredictable cash income — you set a separate split for them in the Tips tab. A common approach is keeping a portion as pocket cash and directing the rest toward your fastest-moving debt.</p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -311,7 +342,16 @@ function toggleTheme(){
   const isLight=document.body.classList.toggle('light');
   document.getElementById('theme-toggle').textContent=isLight?'🌙 Dark':'☀️ Light';
   localStorage.setItem('paycheck-theme',isLight?'light':'dark');
-  renderSplit(); // redraw donut with correct hole color
+  renderSplit(); // redraw main donut with correct hole color
+  // redraw any open history chart donuts
+  const reversed=[...state.history].reverse();
+  reversed.forEach((h,idx)=>{
+    const el=document.getElementById('history-chart-'+idx);
+    if(el&&el.style.display==='block'){
+      const canvas=document.getElementById('history-donut-'+idx);
+      if(canvas)drawHistoryDonut(canvas,h.buckets);
+    }
+  });
 }
 function loadTheme(){
   const t=localStorage.getItem('paycheck-theme');
@@ -608,25 +648,72 @@ function renderSettings(){
 }
 
 // ---- HISTORY ----
+function drawHistoryDonut(canvas, buckets){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,cx=W/2,cy=W/2,R=cx*0.72,r=cx*0.44;
+  ctx.clearRect(0,0,W,W);
+  const total=buckets.reduce((a,b)=>a+b.amt,0);
+  if(!total)return;
+  let angle=-Math.PI/2;
+  buckets.forEach((b,i)=>{
+    const sweep=(b.amt/total)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,angle,angle+sweep);ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();
+    angle+=sweep;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--card').trim();ctx.fill();
+}
+
+function toggleHistoryChart(idx){
+  const el=document.getElementById('history-chart-'+idx);
+  const arrow=document.getElementById('history-arrow-'+idx);
+  if(!el)return;
+  const open=el.style.display==='none'||el.style.display==='';
+  el.style.display=open?'block':'none';
+  arrow.textContent=open?'▲':'▼';
+  if(open){
+    const canvas=document.getElementById('history-donut-'+idx);
+    const entry=[...state.history].reverse()[idx];
+    if(canvas&&entry)drawHistoryDonut(canvas,entry.buckets);
+  }
+}
+
 function renderHistory(){
   const wrap=document.getElementById('history-list');
   const statsWrap=document.getElementById('history-stats');
   if(!state.history.length){wrap.innerHTML='<p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p>';statsWrap.innerHTML='';return;}
   wrap.innerHTML='';
-  [...state.history].reverse().forEach(h=>{
+  [...state.history].reverse().forEach((h,idx)=>{
     const row=document.createElement('div');row.className='history-row';
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
-    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:var(--text3)">${h.date}</span><span style="font-size:15px;font-weight:500;color:var(--text)">${fmt(h.total)}</span></div>
-      <div style="margin-top:4px">${pills}</div>
-      ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
+    const legend=h.buckets.map((b,i)=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></div><span>${b.name}</span><span style="margin-left:auto;font-weight:500;color:var(--text)">${fmt(b.amt)}</span></div>`).join('');
+    row.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none" onclick="toggleHistoryChart(${idx})">
+        <div><span style="font-size:12px;color:var(--text3)">${h.date}</span> <span style="font-size:15px;font-weight:500;color:var(--text);margin-left:8px">${fmt(h.total)}</span></div>
+        <span id="history-arrow-${idx}" style="font-size:11px;color:var(--text3)">▼</span>
+      </div>
+      <div style="margin-top:6px">${pills}</div>
+      ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}
+      <div id="history-chart-${idx}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border2)">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <canvas id="history-donut-${idx}" width="120" height="120" style="flex-shrink:0"></canvas>
+          <div style="flex:1;min-width:120px;display:flex;flex-direction:column;gap:6px">${legend}</div>
+        </div>
+      </div>`;
     wrap.appendChild(row);
   });
-  const sum=(kw)=>state.history.reduce((a,h)=>{const s=h.buckets.find(b=>b.name.toLowerCase().includes(kw));return a+(s?s.amt:0);},0);
+  // Fix IRA double-count: match bucket by name containing 'ira' OR 'roth' but not both keywords separately
+  const sumBucket=(kw)=>state.history.reduce((a,h)=>{const s=h.buckets.find(b=>b.name.toLowerCase().includes(kw));return a+(s?s.amt:0);},0);
+  const sumIRA=()=>state.history.reduce((a,h)=>{
+    const s=h.buckets.find(b=>{const n=b.name.toLowerCase();return n.includes('ira')||n.includes('roth');});
+    return a+(s?s.amt:0);
+  },0);
   statsWrap.innerHTML=`
     <div class="metric"><p class="metric-label">Paychecks logged</p><p class="metric-value">${state.history.length}</p></div>
-    <div class="metric"><p class="metric-label">Total to savings</p><p class="metric-value">${fmt(sum('saving'))}</p></div>
-    <div class="metric"><p class="metric-label">Total to Roth IRA</p><p class="metric-value">${fmt(sum('ira')+sum('roth'))}</p></div>
-    <div class="metric"><p class="metric-label">Total to loans</p><p class="metric-value">${fmt(sum('loan'))}</p></div>`;
+    <div class="metric"><p class="metric-label">Total to savings</p><p class="metric-value">${fmt(sumBucket('saving'))}</p></div>
+    <div class="metric"><p class="metric-label">Total to Roth IRA</p><p class="metric-value">${fmt(sumIRA())}</p></div>
+    <div class="metric"><p class="metric-label">Total to loans</p><p class="metric-value">${fmt(sumBucket('loan'))}</p></div>`;
 }
 
 // ---- TRACKERS ----
