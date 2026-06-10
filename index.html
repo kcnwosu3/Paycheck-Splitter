@@ -335,7 +335,8 @@ const DEFAULT_TIP_BUCKETS=[
 ];
 let state={buckets:DEFAULT_BUCKETS,history:[],nextId:6,tipBuckets:DEFAULT_TIP_BUCKETS,tipHistory:[],tipNextId:4};
 let trackers={iraContributed:0,loanOriginal:0,loanCurrent:0,loanRate:0,collectionsOriginal:0,collectionsCurrent:0};
-let pendingSuggestion=null,suggestionDismissedForPay=null;
+let activeSuggestions=[];
+let suggestionDismissedForPay=null;
 
 // ---- THEME ----
 function toggleTheme(){
@@ -437,53 +438,132 @@ function checkMilestones(prevTrackers){
   }
 }
 
-// ---- SUGGESTION ----
-function computeSuggestion(pay){
-  if(!pay) return null;
+// ---- SUGGESTIONS ----
+function computeSuggestions(pay){
+  if(!pay) return [];
+  const suggestions=[];
+
+  // IRA: overshoot check
   const iraContributed=parseFloat(document.getElementById('ira-contributed').value)||0;
   const iraRemaining=Math.max(7000-iraContributed,0);
-  if(iraRemaining<=0) return null;
   const iraBucket=state.buckets.find(b=>b.name.toLowerCase().includes('ira')||b.name.toLowerCase().includes('roth'));
   const loanBucket=state.buckets.find(b=>b.name.toLowerCase().includes('loan'));
-  if(!iraBucket||!loanBucket) return null;
-  const currentIraDollars=pay*(parseFloat(iraBucket.pct)||0)/100;
-  if(currentIraDollars<=iraRemaining) return null;
-  const neededPct=round2((iraRemaining/pay)*100);
-  const freedPct=round2((parseFloat(iraBucket.pct)||0)-neededPct);
-  if(freedPct<=0) return null;
-  return{iraBucket,loanBucket,oldIraPct:parseFloat(iraBucket.pct)||0,newIraPct:neededPct,oldLoanPct:parseFloat(loanBucket.pct)||0,newLoanPct:round2((parseFloat(loanBucket.pct)||0)+freedPct),freedPct,iraRemaining,extraToLoans:round2(pay*freedPct/100)};
+  if(iraRemaining>0&&iraBucket&&loanBucket){
+    const currentIraDollars=pay*(parseFloat(iraBucket.pct)||0)/100;
+    if(currentIraDollars>iraRemaining){
+      const neededPct=round2((iraRemaining/pay)*100);
+      const freedPct=round2((parseFloat(iraBucket.pct)||0)-neededPct);
+      if(freedPct>0){
+        suggestions.push({
+          id:'ira',
+          title:'Roth IRA nearing limit',
+          body:`Your <strong style="color:var(--text)">Roth IRA</strong> only needs <strong style="color:var(--text)">${fmt(iraRemaining)}</strong> more to reach the $7,000 limit. At ${parseFloat(iraBucket.pct)||0}% you'd overshoot — you only need <strong style="color:var(--text)">${neededPct}%</strong> this check. The freed-up ${freedPct}% (<strong style="color:var(--text)">${fmt(round2(pay*freedPct/100))}</strong>) goes to student loans instead.`,
+          changes:[
+            {bucket:iraBucket,oldPct:parseFloat(iraBucket.pct)||0,newPct:neededPct,dir:'down'},
+            {bucket:loanBucket,oldPct:parseFloat(loanBucket.pct)||0,newPct:round2((parseFloat(loanBucket.pct)||0)+freedPct),dir:'up'},
+          ],
+          apply(){iraBucket.pct=neededPct;loanBucket.pct=round2((parseFloat(loanBucket.pct)||0)+freedPct);}
+        });
+      }
+    }
+  }
+
+  // Student loans: final paycheck overshoot
+  const loanCurr=parseFloat(document.getElementById('loan-current').value)||0;
+  const loanBucket2=state.buckets.find(b=>b.name.toLowerCase().includes('loan'));
+  const savBucket=state.buckets.find(b=>b.name.toLowerCase().includes('saving'));
+  if(loanCurr>0&&loanBucket2&&savBucket){
+    const loanPayment=pay*(parseFloat(loanBucket2.pct)||0)/100;
+    if(loanPayment>loanCurr){
+      const neededPct=round2((loanCurr/pay)*100);
+      const freedPct=round2((parseFloat(loanBucket2.pct)||0)-neededPct);
+      if(freedPct>0){
+        suggestions.push({
+          id:'loan',
+          title:'Student loans almost paid off',
+          body:`You only need <strong style="color:var(--text)">${fmt(loanCurr)}</strong> more to clear your student loans. At ${parseFloat(loanBucket2.pct)||0}% you'd overpay — you only need <strong style="color:var(--text)">${neededPct}%</strong> this check. The freed-up ${freedPct}% (<strong style="color:var(--text)">${fmt(round2(pay*freedPct/100))}</strong>) goes to savings instead.`,
+          changes:[
+            {bucket:loanBucket2,oldPct:parseFloat(loanBucket2.pct)||0,newPct:neededPct,dir:'down'},
+            {bucket:savBucket,oldPct:parseFloat(savBucket.pct)||0,newPct:round2((parseFloat(savBucket.pct)||0)+freedPct),dir:'up'},
+          ],
+          apply(){loanBucket2.pct=neededPct;savBucket.pct=round2((parseFloat(savBucket.pct)||0)+freedPct);}
+        });
+      }
+    }
+  }
+
+  // Collections: final paycheck overshoot
+  const colCurr=parseFloat(document.getElementById('collections-current').value)||0;
+  const colBucket=state.buckets.find(b=>b.name.toLowerCase().includes('collection'));
+  const savBucket2=state.buckets.find(b=>b.name.toLowerCase().includes('saving'));
+  if(colCurr>0&&colBucket&&savBucket2){
+    const colPayment=pay*(parseFloat(colBucket.pct)||0)/100;
+    if(colPayment>colCurr){
+      const neededPct=round2((colCurr/pay)*100);
+      const freedPct=round2((parseFloat(colBucket.pct)||0)-neededPct);
+      if(freedPct>0){
+        suggestions.push({
+          id:'collections',
+          title:'Collections balance almost cleared',
+          body:`You only need <strong style="color:var(--text)">${fmt(colCurr)}</strong> more to clear your collections balance. At ${parseFloat(colBucket.pct)||0}% you'd overpay — you only need <strong style="color:var(--text)">${neededPct}%</strong> this check. The freed-up ${freedPct}% (<strong style="color:var(--text)">${fmt(round2(pay*freedPct/100))}</strong>) goes to savings instead.`,
+          changes:[
+            {bucket:colBucket,oldPct:parseFloat(colBucket.pct)||0,newPct:neededPct,dir:'down'},
+            {bucket:savBucket2,oldPct:parseFloat(savBucket2.pct)||0,newPct:round2((parseFloat(savBucket2.pct)||0)+freedPct),dir:'up'},
+          ],
+          apply(){colBucket.pct=neededPct;savBucket2.pct=round2((parseFloat(savBucket2.pct)||0)+freedPct);}
+        });
+      }
+    }
+  }
+
+  return suggestions;
 }
 
 function renderSuggestion(pay){
   const area=document.getElementById('suggestion-area');
-  const s=computeSuggestion(pay);
-  if(!s||pay===suggestionDismissedForPay){area.innerHTML='';return;}
-  pendingSuggestion=s;
-  area.innerHTML=`<div class="suggestion-box">
-    <p class="suggestion-title">⚡ Smart suggestion</p>
-    <p class="suggestion-body">Your <strong style="color:var(--text)">Roth IRA</strong> only needs <strong style="color:var(--text)">${fmt(s.iraRemaining)}</strong> more to reach the $7,000 limit. At ${s.oldIraPct}% you'd overshoot — you only need <strong style="color:var(--text)">${s.newIraPct}%</strong> this check. The freed-up ${s.freedPct}% (<strong style="color:var(--text)">${fmt(s.extraToLoans)}</strong>) goes to student loans instead.</p>
-    <div>
-      <div class="change-row"><span style="color:var(--text)">${s.iraBucket.name}</span><div class="change-vals"><span>${s.oldIraPct}%</span><span style="color:var(--text3)">→</span><span class="change-new down">${s.newIraPct}%</span></div></div>
-      <div class="change-row"><span style="color:var(--text)">${s.loanBucket.name}</span><div class="change-vals"><span>${s.oldLoanPct}%</span><span style="color:var(--text3)">→</span><span class="change-new up">${s.newLoanPct}%</span></div></div>
-    </div>
-    <div class="suggestion-btns">
-      <button class="btn-approve" onclick="approveSuggestion()">Apply for this paycheck</button>
-      <button class="btn-dismiss" onclick="dismissSuggestion()">Dismiss</button>
-    </div>
-  </div>`;
+  if(pay===suggestionDismissedForPay){area.innerHTML='';return;}
+  activeSuggestions=computeSuggestions(pay);
+  if(!activeSuggestions.length){area.innerHTML='';return;}
+  area.innerHTML=activeSuggestions.map((s,i)=>`
+    <div class="suggestion-box" id="suggestion-box-${s.id}">
+      <p class="suggestion-title">⚡ ${s.title}</p>
+      <p class="suggestion-body">${s.body}</p>
+      <div>
+        ${s.changes.map(c=>`
+          <div class="change-row">
+            <span style="color:var(--text)">${c.bucket.name}</span>
+            <div class="change-vals"><span>${c.oldPct}%</span><span style="color:var(--text3)">→</span><span class="change-new ${c.dir}">${c.newPct}%</span></div>
+          </div>`).join('')}
+      </div>
+      <div class="suggestion-btns">
+        <button class="btn-approve" onclick="approveSuggestion('${s.id}')">Apply for this paycheck</button>
+        <button class="btn-dismiss" onclick="dismissOneSuggestion('${s.id}')">Dismiss</button>
+      </div>
+    </div>`).join('');
 }
 
-function approveSuggestion(){
-  if(!pendingSuggestion) return;
-  pendingSuggestion.iraBucket.pct=pendingSuggestion.newIraPct;
-  pendingSuggestion.loanBucket.pct=pendingSuggestion.newLoanPct;
-  pendingSuggestion=null;
-  document.getElementById('suggestion-area').innerHTML='';
-  renderSplit();renderSettings();showMsg('Suggestion applied!',false);
+function approveSuggestion(id){
+  const s=activeSuggestions.find(x=>x.id===id);
+  if(!s) return;
+  s.apply();
+  activeSuggestions=activeSuggestions.filter(x=>x.id!==id);
+  saveState();
+  const box=document.getElementById('suggestion-box-'+id);
+  if(box)box.remove();
+  renderSplit();renderSettings();
+  showMsg('Suggestion applied!',false);
 }
+
+function dismissOneSuggestion(id){
+  activeSuggestions=activeSuggestions.filter(x=>x.id!==id);
+  const box=document.getElementById('suggestion-box-'+id);
+  if(box)box.remove();
+}
+
 function dismissSuggestion(){
   suggestionDismissedForPay=parseFloat(document.getElementById('pay-input').value)||0;
-  pendingSuggestion=null;document.getElementById('suggestion-area').innerHTML='';
+  activeSuggestions=[];
+  document.getElementById('suggestion-area').innerHTML='';
 }
 
 // ---- SPLIT ----
@@ -803,7 +883,7 @@ function logPaycheck(){
   const colBucketLog=state.buckets.find(b=>b.name.toLowerCase().includes('collection'));
   if(colBucketLog){const c=parseFloat(document.getElementById('collections-current').value)||0;if(c>0)document.getElementById('collections-current').value=Math.max(c-pay*(parseFloat(colBucketLog.pct)||0)/100,0).toFixed(2);}
   saveTrackers();checkMilestones(prevT);
-  suggestionDismissedForPay=null;pendingSuggestion=null;
+  suggestionDismissedForPay=null;activeSuggestions=[];
   saveState();renderAll();
   document.getElementById('paycheck-note').value='';
   showMsg('Paycheck logged!',false);
