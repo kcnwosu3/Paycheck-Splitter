@@ -87,6 +87,16 @@
   /* Confetti canvas */
   #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
   .milestone-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--suggestion-bg);border:1px solid #4caf84;border-radius:12px;padding:12px 20px;font-size:14px;color:#4caf84;font-weight:600;z-index:10000;display:none;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+  @keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}
+  @keyframes fadeOutOverlay{from{opacity:1}to{opacity:0}}
+  @keyframes drawCheck{from{stroke-dashoffset:200}to{stroke-dashoffset:0}}
+  @keyframes popIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .success-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeInOverlay 0.25s ease}
+  .success-check-circle{width:100px;height:100px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;animation:popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;box-shadow:0 0 40px rgba(29,158,117,0.5)}
+  .success-check-circle svg{overflow:visible}
+  .success-check-circle polyline{fill:none;stroke:#fff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:200;stroke-dashoffset:200;animation:drawCheck 0.4s ease 0.4s forwards}
+  .success-title{color:#fff;font-size:26px;font-weight:700;margin-top:24px;animation:slideUp 0.35s ease 0.5s both}
 </style>
 </head>
 <body>
@@ -100,6 +110,7 @@
   <button class="tab-btn" id="tab-settings" onclick="showTab('settings')">Buckets</button>
   <button class="tab-btn" id="tab-history" onclick="showTab('history')">History</button>
   <button class="tab-btn" id="tab-trackers" onclick="showTab('trackers')">Trackers</button>
+  <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">Guide</button>
   <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
 </div>
 
@@ -118,7 +129,7 @@
     <div class="metric"><p class="metric-label">Unallocated</p><p class="metric-value" id="leftover-display">$0.00</p></div>
   </div>
   <div class="card">
-    <p class="section-title">Allocation breakdown</p>
+    <p class="section-title">Allocation Breakdown</p>
     <div id="split-buckets"></div>
     <canvas id="donut-chart" width="200" height="200" style="display:block;margin:1.5rem auto 0"></canvas>
     <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"></div>
@@ -136,7 +147,7 @@
 <!-- TIPS -->
 <div id="view-tips" style="display:none">
   <div class="card">
-    <p class="section-title">Log a shift's tips</p>
+    <p class="section-title">Log a Shift's Tips</p>
     <p class="hint">Enter your tip amount and we'll suggest how to allocate it based on your bucket percentages — but tips are unpredictable, so you set your own split below.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
@@ -156,7 +167,7 @@
       <textarea id="tip-note" rows="2" placeholder="e.g. Saturday night, busy shift..."></textarea>
     </div>
 
-    <p class="section-title" style="font-size:14px;margin-bottom:8px">How to split these tips</p>
+    <p class="section-title" style="font-size:14px;margin-bottom:8px">How to Split These Tips</p>
     <p class="hint">Set percentages for tip allocation — can differ from your paycheck buckets since tips are cash and more variable.</p>
     <div id="tip-bucket-settings"></div>
     <p style="font-size:12px;color:var(--text2);margin:8px 0 4px" id="tip-pct-total"></p>
@@ -164,30 +175,17 @@
     <div id="tip-breakdown-preview" style="margin-top:12px"></div>
   </div>
 
-  <div style="margin-bottom:12px">
-    <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Tip allocation (must total 100%)</p>
-  </div>
-
   <button onclick="logTips()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text)">
     ✓ Log this shift's tips
   </button>
   <p id="tip-log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
 
-  <div class="card" style="margin-top:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <p class="section-title" style="margin:0">Tip history</p>
-      <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear</button>
-    </div>
-    <div id="tip-history-list"><p style="font-size:14px;color:var(--text3)">No tips logged yet.</p></div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
 </div>
 
 <!-- BUCKETS -->
 <div id="view-settings" style="display:none">
   <div class="card">
-    <p class="section-title">Your paycheck buckets</p>
+    <p class="section-title">Your Paycheck Buckets</p>
     <p class="hint">Click a name or number to edit, then press Enter or click away to save.</p>
     <div id="settings-buckets"></div>
     <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text)">+ Add bucket</button>
@@ -196,14 +194,33 @@
 
 <!-- HISTORY -->
 <div id="view-history" style="display:none">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <p class="section-title" style="margin:0">Paycheck log</p>
-      <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
-    </div>
-    <div id="history-list"><p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p></div>
+  <!-- Sub-tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="htab-paycheck" onclick="switchHistoryTab('paycheck')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:#1D9E75;color:#fff">Paychecks</button>
+    <button id="htab-tips" onclick="switchHistoryTab('tips')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2)">Tips</button>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
+  <!-- Paycheck section -->
+  <div id="hsection-paycheck">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p class="section-title" style="margin:0">Paycheck Log</p>
+        <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
+      </div>
+      <div id="history-list"><p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
+  </div>
+  <!-- Tips section -->
+  <div id="hsection-tips" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p class="section-title" style="margin:0">Tip Log</p>
+        <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
+      </div>
+      <div id="tip-history-list"><p style="font-size:14px;color:var(--text3)">No tips logged yet.</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
+  </div>
 </div>
 
 <!-- TRACKERS -->
@@ -211,7 +228,7 @@
 
   <!-- Roth IRA -->
   <div class="card">
-    <p class="section-title">Roth IRA — 2025 contribution tracker</p>
+    <p class="section-title">Roth IRA — 2026 Contribution Tracker</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
         <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Contributed so far</p>
@@ -232,8 +249,8 @@
 
   <!-- Collections -->
   <div class="card">
-    <p class="section-title">Collections payoff tracker</p>
-    <p style="font-size:12px;color:var(--text2);margin:-6px 0 12px">Track any collections accounts you're paying down.</p>
+    <p class="section-title">Collections Payoff Tracker</p>
+    <p style="font-size:12px;color:var(--text2);margin:-6px 0 12px">Track any collection accounts you're paying down.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
         <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Original balance</p>
@@ -257,7 +274,7 @@
 
   <!-- Student Loans -->
   <div class="card">
-    <p class="section-title">Student loan payoff tracker</p>
+    <p class="section-title">Student Loan Payoff Tracker</p>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem">
       <div>
         <p style="font-size:12px;color:var(--text2);margin:0 0 6px">Original balance</p>
@@ -288,24 +305,31 @@
 
   <!-- How percentages work -->
   <div class="card" style="margin-top:4px">
-    <p class="section-title">How your percentages work</p>
+    <p style="font-size:13px;color:var(--text2);margin:0">Head to the <strong style="color:var(--text)">Guide</strong> tab for a full explanation of how your buckets, trackers, and smart suggestions work together.</p>
+  </div>
+</div>
+
+<!-- GUIDE -->
+<div id="view-guide" style="display:none">
+  <div class="card">
+    <p class="section-title">How Your Percentages Work</p>
     <p style="font-size:13px;color:var(--text2);line-height:1.7;margin:0 0 12px">Every paycheck gets divided by the percentages you set in the <strong style="color:var(--text)">Buckets</strong> tab. They should always add up to 100% — anything under means money is left unallocated, anything over means you've assigned more than you earn.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div style="width:10px;height:10px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Savings account</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Goes into your high-yield savings account each check. Name the bucket anything with "saving" and it auto-tracks.</p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Savings account</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Goes into your high-yield savings account each check. Name the bucket anything with "saving" and it auto-tracks. When your student loan or collections balance is almost cleared, the freed-up percentage from those trackers gets redirected here automatically.</p></div>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div style="width:10px;height:10px;border-radius:50%;background:#7F77DD;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Roth IRA</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Contributed toward your $7,000 annual limit. The smart suggestion will alert you when a check would overshoot the limit and redirect the extra to loans. Name it anything with "IRA" or "Roth".</p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Roth IRA</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Contributed toward your $7,000 annual limit. Name it anything with "IRA" or "Roth". <strong style="color:var(--text)">Smart suggestion:</strong> when a paycheck would overshoot the remaining limit, the app suggests dropping the IRA percentage to exactly what's needed and redirecting the freed-up amount to your student loans.</p></div>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div style="width:10px;height:10px;border-radius:50%;background:#378ADD;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Student loans</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Applied directly to your loan balance each check. The tracker accounts for interest so you see your real payoff date. Name it anything with "loan".</p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Student loans</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Applied directly to your loan balance each check. The tracker accounts for your interest rate so you see your real payoff date and total interest paid. Name it anything with "loan". <strong style="color:var(--text)">Smart suggestion:</strong> on the final paycheck before payoff, the app suggests reducing this percentage to only what's owed and moving the rest to savings.</p></div>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div style="width:10px;height:10px;border-radius:50%;background:#D85A30;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Collections</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Paid toward your collections balance each check. Name it anything with "collection" and it auto-tracks.</p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Collections</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Paid toward your collections balance each check. Name it anything with "collection" and it auto-tracks. <strong style="color:var(--text)">Smart suggestion:</strong> same as loans — on the final paycheck before the balance clears, the app suggests trimming the percentage to exactly what's owed and redirecting the rest to savings.</p></div>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div style="width:10px;height:10px;border-radius:50%;background:#639922;flex-shrink:0;margin-top:4px"></div>
@@ -313,6 +337,7 @@
       </div>
     </div>
     <div style="margin-top:14px;padding:10px 12px;background:var(--card2);border-radius:8px;border-left:3px solid #7F77DD">
+      <p style="font-size:12px;color:var(--text2);margin:0 0 8px;line-height:1.6"><strong style="color:var(--text)">Smart suggestions appear automatically.</strong> When you enter your paycheck amount, the app checks all three trackers and shows a suggestion card for any that would overshoot. You can approve or dismiss each one independently — approving only affects that paycheck's percentages and resets when you log the next check.</p>
       <p style="font-size:12px;color:var(--text2);margin:0;line-height:1.6"><strong style="color:var(--text)">Tip money works differently.</strong> Tips are unpredictable cash income — you set a separate split for them in the Tips tab. A common approach is keeping a portion as pocket cash and directing the rest toward your fastest-moving debt.</p>
     </div>
   </div>
@@ -429,7 +454,7 @@ function checkMilestones(prevTrackers){
   const loanCurr=parseFloat(document.getElementById('loan-current').value)||0;
   const loanOrig=parseFloat(document.getElementById('loan-original').value)||0;
 
-  if(ira>=7000&&(prevTrackers.iraContributed||0)<7000)celebrate('🎉 Roth IRA maxed out for 2025!');
+  if(ira>=7000&&(prevTrackers.iraContributed||0)<7000)celebrate('🎉 Roth IRA maxed out for 2026!');
   else if(loanOrig>0&&loanCurr<=0&&(prevTrackers.loanCurrent||0)>0)celebrate('🎉 Student loans paid off!');
   else{
     const colOrig=parseFloat(document.getElementById('collections-original').value)||0;
@@ -662,12 +687,31 @@ function logTips(){
   const entry={date:dateStr,total:amt,note,buckets:state.tipBuckets.map(b=>({name:b.name,amt:round2(amt*(parseFloat(b.pct)||0)/100)}))};
   state.tipHistory.push(entry);
 
+  // Update trackers based on tip bucket names
+  const prevT={...trackers};
+  entry.buckets.forEach(b=>{
+    const n=b.name.toLowerCase();
+    if(n.includes('ira')||n.includes('roth')){
+      const el=document.getElementById('ira-contributed');
+      el.value=Math.min((parseFloat(el.value)||0)+b.amt,7000).toFixed(2);
+    } else if(n.includes('loan')){
+      const el=document.getElementById('loan-current');
+      const c=parseFloat(el.value)||0;
+      if(c>0)el.value=Math.max(c-b.amt,0).toFixed(2);
+    } else if(n.includes('collection')){
+      const el=document.getElementById('collections-current');
+      const c=parseFloat(el.value)||0;
+      if(c>0)el.value=Math.max(c-b.amt,0).toFixed(2);
+    }
+  });
+  saveTrackers();checkMilestones(prevT);
+
   saveState();
   document.getElementById('tip-amount').value='';
   document.getElementById('tip-note').value='';
   document.getElementById('tip-breakdown-preview').innerHTML='';
   renderTipHistory();renderTrackers();
-  showTipMsg('Tips logged!',false);
+  showTipsSuccess();
 }
 
 function renderTipHistory(){
@@ -694,7 +738,27 @@ function renderTipHistory(){
     <div class="metric"><p class="metric-label">Avg per shift</p><p class="metric-value">${fmt(avgTips)}</p></div>`;
 }
 
-function clearTips(){if(!state.tipHistory.length)return;state.tipHistory=[];saveState();renderTipHistory();}
+function clearTips(){
+  if(!state.tipHistory.length)return;
+  state.tipHistory.forEach(h=>{
+    h.buckets.forEach(b=>{
+      const n=b.name.toLowerCase();
+      if(n.includes('ira')||n.includes('roth')){
+        const el=document.getElementById('ira-contributed');
+        el.value=Math.max((parseFloat(el.value)||0)-b.amt,0).toFixed(2);
+      } else if(n.includes('loan')){
+        const el=document.getElementById('loan-current');
+        const orig=parseFloat(document.getElementById('loan-original').value)||0;
+        el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+      } else if(n.includes('collection')){
+        const el=document.getElementById('collections-current');
+        const orig=parseFloat(document.getElementById('collections-original').value)||0;
+        el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+      }
+    });
+  });
+  state.tipHistory=[];saveTrackers();saveState();renderTipHistory();renderTrackers();
+}
 
 // ---- BUCKETS ----
 function makeEditable(el,bid,field){
@@ -727,7 +791,42 @@ function renderSettings(){
   });
 }
 
+// ---- HISTORY TAB TOGGLE ----
+function switchHistoryTab(tab){
+  const isPay=tab==='paycheck';
+  document.getElementById('hsection-paycheck').style.display=isPay?'block':'none';
+  document.getElementById('hsection-tips').style.display=isPay?'none':'block';
+  document.getElementById('htab-paycheck').style.background=isPay?'#1D9E75':'var(--card2)';
+  document.getElementById('htab-paycheck').style.color=isPay?'#fff':'var(--text2)';
+  document.getElementById('htab-tips').style.background=isPay?'var(--card2)':'#1D9E75';
+  document.getElementById('htab-tips').style.color=isPay?'var(--text2)':'#fff';
+}
+
 // ---- HISTORY ----
+function deletePaycheck(idx){
+  const h=state.history[idx];
+  if(!h)return;
+  // Reverse tracker effects using stored bucket snapshot
+  h.buckets.forEach(b=>{
+    const n=b.name.toLowerCase();
+    if(n.includes('ira')||n.includes('roth')){
+      const el=document.getElementById('ira-contributed');
+      el.value=Math.max((parseFloat(el.value)||0)-b.amt,0).toFixed(2);
+    } else if(n.includes('loan')){
+      const el=document.getElementById('loan-current');
+      const orig=parseFloat(document.getElementById('loan-original').value)||0;
+      el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+    } else if(n.includes('collection')){
+      const el=document.getElementById('collections-current');
+      const orig=parseFloat(document.getElementById('collections-original').value)||0;
+      el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+    }
+  });
+  state.history.splice(idx,1);
+  saveTrackers();saveState();renderHistory();renderTrackers();
+  showMsg('Paycheck deleted and trackers updated.',false);
+}
+
 function drawHistoryDonut(canvas, buckets){
   const ctx=canvas.getContext('2d');
   const W=canvas.width,cx=W/2,cy=W/2,R=cx*0.72,r=cx*0.44;
@@ -768,10 +867,12 @@ function renderHistory(){
     const row=document.createElement('div');row.className='history-row';
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
     const legend=h.buckets.map((b,i)=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></div><span>${b.name}</span><span style="margin-left:auto;font-weight:500;color:var(--text)">${fmt(b.amt)}</span></div>`).join('');
+    const realIdx=state.history.length-1-idx;
     row.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:2px 0" onclick="toggleHistoryChart(${idx})">
-        <div><span style="font-size:12px;color:var(--text3)">${h.date}</span> <span style="font-size:15px;font-weight:500;color:var(--text);margin-left:8px">${fmt(h.total)}</span></div>
-        <span id="history-arrow-${idx}" style="font-size:11px;color:var(--text3)">▼</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:2px 0">
+        <div onclick="toggleHistoryChart(${idx})" style="flex:1"><span style="font-size:12px;color:var(--text3)">${h.date}</span> <span style="font-size:15px;font-weight:500;color:var(--text);margin-left:8px">${fmt(h.total)}</span></div>
+        <button onclick="deletePaycheck(${realIdx})" style="background:none;border:none;cursor:pointer;font-size:14px;padding:2px 6px;color:var(--text3);flex-shrink:0" title="Delete this paycheck">🗑</button>
+        <span id="history-arrow-${idx}" onclick="toggleHistoryChart(${idx})" style="font-size:11px;color:var(--text3);padding-left:4px">▼</span>
       </div>
       <div style="margin-top:6px;cursor:pointer;user-select:none" onclick="toggleHistoryChart(${idx})">${pills}</div>
       ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic;cursor:pointer" onclick="toggleHistoryChart(${idx})">${h.note}</p>`:''}
@@ -810,7 +911,7 @@ function renderTrackers(){
   if(iraBucket&&pay){
     const perCheck=pay*(parseFloat(iraBucket.pct)||0)/100;
     const needed=Math.max(7000-ira,0);
-    document.getElementById('ira-auto-note').textContent=needed<=0?'You have reached the 2025 contribution limit.':perCheck>0?`At ${fmt(perCheck)} per paycheck, you'll hit the limit in ~${Math.ceil(needed/perCheck)} more paycheck${Math.ceil(needed/perCheck)===1?'':'s'}.`:'';
+    document.getElementById('ira-auto-note').textContent=needed<=0?'You have reached the 2026 contribution limit.':perCheck>0?`At ${fmt(perCheck)} per paycheck, you'll hit the limit in ~${Math.ceil(needed/perCheck)} more paycheck${Math.ceil(needed/perCheck)===1?'':'s'}.`:'';
   } else document.getElementById('ira-auto-note').textContent='';
 
   // Collections
@@ -886,19 +987,71 @@ function logPaycheck(){
   suggestionDismissedForPay=null;activeSuggestions=[];
   saveState();renderAll();
   document.getElementById('paycheck-note').value='';
-  showMsg('Paycheck logged!',false);
+  showPaycheckSuccess();
 }
 
 function showMsg(txt,isErr){const el=document.getElementById('log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
+
+function showSuccessOverlay(label){
+  const id='success-overlay';
+  const existing=document.getElementById(id);
+  if(existing)existing.remove();
+  const overlay=document.createElement('div');
+  overlay.id=id;
+  overlay.className='success-overlay';
+  overlay.innerHTML=`
+    <div class="success-check-circle">
+      <svg width="50" height="50" viewBox="0 0 52 52">
+        <polyline points="14,27 22,35 38,17"/>
+      </svg>
+    </div>
+    <p class="success-title">${label}</p>
+  `;
+  overlay.addEventListener('click',()=>{
+    overlay.style.animation='fadeOutOverlay 0.25s ease forwards';
+    setTimeout(()=>overlay.remove(),250);
+  });
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    if(document.getElementById(id)){
+      overlay.style.animation='fadeOutOverlay 0.25s ease forwards';
+      setTimeout(()=>overlay.remove(),250);
+    }
+  },3000);
+}
+function showPaycheckSuccess(){showSuccessOverlay('Paycheck Logged!');}
+function showTipsSuccess(){showSuccessOverlay('Tips Logged!');}
 function showTipMsg(txt,isErr){const el=document.getElementById('tip-log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
-function clearHistory(){if(!state.history.length)return;state.history=[];saveState();renderHistory();}
+function clearHistory(){
+  if(!state.history.length)return;
+  // Reverse all paycheck tracker effects
+  state.history.forEach(h=>{
+    h.buckets.forEach(b=>{
+      const n=b.name.toLowerCase();
+      if(n.includes('ira')||n.includes('roth')){
+        const el=document.getElementById('ira-contributed');
+        el.value=Math.max((parseFloat(el.value)||0)-b.amt,0).toFixed(2);
+      } else if(n.includes('loan')){
+        const el=document.getElementById('loan-current');
+        const orig=parseFloat(document.getElementById('loan-original').value)||0;
+        el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+      } else if(n.includes('collection')){
+        const el=document.getElementById('collections-current');
+        const orig=parseFloat(document.getElementById('collections-original').value)||0;
+        el.value=Math.min((parseFloat(el.value)||0)+b.amt,orig||Infinity).toFixed(2);
+      }
+    });
+  });
+  state.history=[];saveTrackers();saveState();renderHistory();renderTrackers();
+  showMsg('History cleared and trackers updated.',false);
+}
 function deleteBucket(id){state.buckets=state.buckets.filter(x=>x.id!==id);saveState();renderAll();}
 function addBucket(){state.buckets.push({id:state.nextId++,name:'New bucket',pct:0});saveState();renderAll();}
 
 function renderAll(){renderSplit();renderSettings();renderHistory();renderTrackers();renderTipBucketSettings();renderTipHistory();}
 
 function showTab(tab){
-  ['split','tips','settings','history','trackers'].forEach(t=>{
+  ['split','tips','settings','history','trackers','guide'].forEach(t=>{
     document.getElementById('view-'+t).style.display=t===tab?'block':'none';
     document.getElementById('tab-'+t).className='tab-btn'+(t===tab?' active':'');
   });
