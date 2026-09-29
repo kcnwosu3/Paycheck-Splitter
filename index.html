@@ -117,30 +117,33 @@
 <!-- PAYCHECK SPLIT -->
 <div id="view-split">
   <div id="suggestion-area"></div>
-  <div class="metrics-grid">
-    <div class="metric">
-      <p class="metric-label">Take-home pay</p>
-      <div style="display:flex;align-items:center;gap:4px">
-        <span style="font-size:16px;color:var(--text2)">$</span>
-        <input type="number" id="pay-input" min="0" style="font-size:22px;font-weight:500;border:none;background:transparent;width:110px;color:var(--text);outline:none" oninput="recalcSplit()" />
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+    <div class="metric" style="padding:10px 8px">
+      <p class="metric-label" style="font-size:11px;margin-bottom:4px">Take-home pay</p>
+      <div style="display:flex;align-items:center;gap:2px">
+        <span style="font-size:13px;color:var(--text2)">$</span>
+        <input type="number" id="pay-input" min="0" style="font-size:17px;font-weight:500;border:none;background:transparent;width:80px;color:var(--text);outline:none" oninput="recalcSplit()" />
       </div>
     </div>
-    <div class="metric"><p class="metric-label">Allocated</p><p class="metric-value" id="pct-display">0%</p></div>
-    <div class="metric"><p class="metric-label">Unallocated</p><p class="metric-value" id="leftover-display">$0.00</p></div>
+    <div class="metric" style="padding:10px 8px"><p class="metric-label" style="font-size:11px;margin-bottom:4px">Allocated</p><p class="metric-value" id="pct-display" style="font-size:17px">0%</p></div>
+    <div class="metric" style="padding:10px 8px"><p class="metric-label" style="font-size:11px;margin-bottom:4px">Unallocated</p><p class="metric-value" id="leftover-display" style="font-size:17px">$0.00</p></div>
   </div>
-  <div class="card">
-    <p class="section-title">Allocation Breakdown</p>
-    <div id="split-buckets"></div>
-    <canvas id="donut-chart" width="200" height="200" style="display:block;margin:1.5rem auto 0"></canvas>
-    <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"></div>
+  <div class="card" style="padding:12px">
+    <p class="section-title" style="margin-bottom:8px">Allocation Breakdown</p>
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div id="split-buckets" style="flex:1;min-width:0"></div>
+      <canvas id="donut-chart" width="110" height="110" style="flex-shrink:0;display:block;margin-top:4px"></canvas>
+    </div>
   </div>
-  <div class="card" style="margin-bottom:12px">
-    <p class="section-title" style="margin-bottom:6px">Note <span style="font-size:12px;color:var(--text3);font-weight:400">(optional)</span></p>
-    <textarea id="paycheck-note" rows="2" placeholder="e.g. got a bonus, short week..."></textarea>
-  </div>
-  <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text)">
+  <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text);margin-top:10px">
     ✓ Log this paycheck
   </button>
+  <div style="text-align:center;margin-top:6px">
+    <button onclick="togglePaycheckNote()" id="note-toggle-btn" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:2px 0">+ Add note</button>
+  </div>
+  <div id="paycheck-note-area" style="display:none;margin-top:8px">
+    <textarea id="paycheck-note" rows="2" placeholder="e.g. got a bonus, short week..." style="width:100%;box-sizing:border-box"></textarea>
+  </div>
   <p id="log-msg" style="font-size:13px;text-align:center;margin:8px 0 0;min-height:18px"></p>
 </div>
 
@@ -592,6 +595,13 @@ function dismissSuggestion(){
 }
 
 // ---- SPLIT ----
+function togglePaycheckNote(){
+  const area=document.getElementById('paycheck-note-area');
+  const btn=document.getElementById('note-toggle-btn');
+  const visible=area.style.display!=='none';
+  area.style.display=visible?'none':'block';
+  btn.textContent=visible?'+ Add note':'− Hide note';
+}
 function recalcSplit(){savePayAmount();renderSplit();}
 function renderSplit(){
   const pay=parseFloat(document.getElementById('pay-input').value)||0;
@@ -617,9 +627,8 @@ function renderSplit(){
   const ctx=canvas.getContext('2d');
   const data=state.buckets.map(b=>pay*(parseFloat(b.pct)||0)/100);
   const t2=data.reduce((a,b)=>a+b,0);
-  ctx.clearRect(0,0,200,200);
-  if(t2){let angle=-Math.PI/2;data.forEach((val,i)=>{const sweep=(val/t2)*2*Math.PI;ctx.beginPath();ctx.moveTo(100,100);ctx.arc(100,100,72,angle,angle+sweep);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();angle+=sweep;});ctx.beginPath();ctx.arc(100,100,44,0,2*Math.PI);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--donut-hole').trim();ctx.fill();}
-  document.getElementById('donut-legend').innerHTML=state.buckets.map((b,i)=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><div style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></div>${b.name}</div>`).join('');
+  ctx.clearRect(0,0,110,110);
+  if(t2){let angle=-Math.PI/2;data.forEach((val,i)=>{const sweep=(val/t2)*2*Math.PI;ctx.beginPath();ctx.moveTo(55,55);ctx.arc(55,55,40,angle,angle+sweep);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();angle+=sweep;});ctx.beginPath();ctx.arc(55,55,24,0,2*Math.PI);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--donut-hole').trim();ctx.fill();}
   renderTrackers();
 }
 
@@ -987,6 +996,8 @@ function logPaycheck(){
   suggestionDismissedForPay=null;activeSuggestions=[];
   saveState();renderAll();
   document.getElementById('paycheck-note').value='';
+  document.getElementById('paycheck-note-area').style.display='none';
+  document.getElementById('note-toggle-btn').textContent='+ Add note';
   showPaycheckSuccess();
 }
 
