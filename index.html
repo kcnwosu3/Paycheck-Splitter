@@ -130,10 +130,8 @@
   </div>
   <div class="card" style="padding:12px">
     <p class="section-title" style="margin-bottom:8px">Allocation Breakdown</p>
-    <div style="display:flex;gap:12px;align-items:flex-start">
-      <div id="split-buckets" style="flex:1;min-width:0"></div>
-      <canvas id="donut-chart" width="110" height="110" style="flex-shrink:0;display:block;margin-top:4px"></canvas>
-    </div>
+    <div id="split-buckets"></div>
+    <canvas id="donut-chart" width="110" height="110" style="display:block;margin:12px auto 0"></canvas>
   </div>
   <button onclick="logPaycheck()" style="width:100%;padding:10px;font-size:15px;cursor:pointer;font-weight:500;background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text);margin-top:10px">
     ✓ Log this paycheck
