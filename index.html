@@ -110,8 +110,8 @@
   <button class="tab-btn" id="tab-settings" onclick="showTab('settings')">Buckets</button>
   <button class="tab-btn" id="tab-history" onclick="showTab('history')">History</button>
   <button class="tab-btn" id="tab-trackers" onclick="showTab('trackers')">Trackers</button>
-  <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">Guide</button>
-  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
+  <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">ℹ️</button>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️</button>
 </div>
 
 <!-- PAYCHECK SPLIT -->
@@ -367,7 +367,7 @@ let suggestionDismissedForPay=null;
 // ---- THEME ----
 function toggleTheme(){
   const isLight=document.body.classList.toggle('light');
-  document.getElementById('theme-toggle').textContent=isLight?'🌙 Dark':'☀️ Light';
+  document.getElementById('theme-toggle').textContent=isLight?'🌙':'☀️';
   localStorage.setItem('paycheck-theme',isLight?'light':'dark');
   renderSplit(); // redraw main donut with correct hole color
   // redraw any open history chart donuts
@@ -382,7 +382,7 @@ function toggleTheme(){
 }
 function loadTheme(){
   const t=localStorage.getItem('paycheck-theme');
-  if(t==='light'){document.body.classList.add('light');document.getElementById('theme-toggle').textContent='🌙 Dark';}
+  if(t==='light'){document.body.classList.add('light');document.getElementById('theme-toggle').textContent='🌙';}
 }
 
 // ---- STORAGE ----
