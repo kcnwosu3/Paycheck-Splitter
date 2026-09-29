@@ -49,7 +49,7 @@
   .bar{height:5px;border-radius:3px}
   .del-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0;line-height:1;flex-shrink:0}
   .del-btn:hover{color:#e24b4a}
-  .tab-btn{font-size:13px;padding:6px 11px;cursor:pointer;border:none;background:transparent;color:var(--text3);border-bottom:2px solid transparent;white-space:nowrap}
+  .tab-btn{font-size:12px;padding:6px 8px;cursor:pointer;border:none;background:transparent;color:var(--text3);border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
   .tab-btn.active{color:var(--tab-active);border-bottom:2px solid var(--tab-active);font-weight:500}
   .progress-track{height:10px;background:var(--card2);border-radius:5px;overflow:hidden;margin:8px 0}
   .progress-fill{height:10px;border-radius:5px;transition:width 0.4s}
@@ -72,7 +72,8 @@
   .btn-dismiss{padding:7px 14px;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)}
   .btn-dismiss:hover{color:var(--text);border-color:var(--text2)}
   .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.5rem}
-  .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem;flex-wrap:wrap;gap:0;align-items:center}
+  .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem;flex-wrap:nowrap;gap:0;align-items:center;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
   .warn-text{color:#e24b4a}
   .ok-text{color:#1D9E75}
   textarea{background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;width:100%;resize:vertical;outline:none;font-family:system-ui,sans-serif}
@@ -111,7 +112,7 @@
   <button class="tab-btn" id="tab-history" onclick="showTab('history')">History</button>
   <button class="tab-btn" id="tab-trackers" onclick="showTab('trackers')">Trackers</button>
   <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">ℹ️</button>
-  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️</button>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;flex-shrink:0">☀️</button>
 </div>
 
 <!-- PAYCHECK SPLIT -->
