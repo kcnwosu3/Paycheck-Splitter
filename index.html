@@ -5,28 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Paycheck Splitter</title>
 <style>
-  *{box-sizing:border-box;font-family:system-ui,sans-serif}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif}
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
   input[type=number]{-moz-appearance:textfield}
 
-  /* Dark mode (default) */
+  /* Arctic Frost — light (default) */
   body{
-    --bg:#1a1a1a;--card:#242424;--card2:#2c2c2c;--border:#333;--border2:#2e2e2e;
-    --text:#f0f0f0;--text2:#888;--text3:#666;--dashed:#555;
-    --inline-bg:#1e2e3e;--suggestion-bg:#1e2a1e;--suggestion-border:#2d5a2d;
-    --change-border:#2a3a2a;--tab-active:#f0f0f0;--btn-bg:#2c2c2c;--btn-border:#444;
-    --donut-hole:#242424;
+    --bg:#f0f6fd;--card:#fafafa;--card2:#e8f0f9;--border:#b8d0ec;--border2:#cdddf0;
+    --text:#1a3050;--text2:#4a6fa5;--text3:#7a9abf;--dashed:#90aece;
+    --inline-bg:#e0ecf8;--suggestion-bg:#eaf2fb;--suggestion-border:#4a6fa5;
+    --change-border:#c0d8f0;--tab-active:#1a3050;--btn-bg:#fafafa;--btn-border:#b0c8e4;
+    --donut-hole:#fafafa;
+    --accent:#4a6fa5;--accent2:#d4e4f7;
     background:var(--bg);color:var(--text);margin:0 auto;padding:1rem;max-width:700px;
     transition:background 0.2s,color 0.2s;
   }
-  /* Light mode */
+  /* Arctic Frost — dark */
   body.light{
-    --bg:#f5f5f5;--card:#ffffff;--card2:#f0f0f0;--border:#e0e0e0;--border2:#e8e8e8;
-    --text:#111111;--text2:#555555;--text3:#888888;--dashed:#bbb;
-    --inline-bg:#e8f0fb;--suggestion-bg:#e8f5ee;--suggestion-border:#7ecfa0;
-    --change-border:#cce8d8;--tab-active:#111111;--btn-bg:#ffffff;--btn-border:#d0d0d0;
-    --donut-hole:#ffffff;
+    --bg:#1a2a3e;--card:#1f3350;--card2:#243c5a;--border:#2e4e72;--border2:#264062;
+    --text:#d4e4f7;--text2:#7aaad4;--text3:#4a7aaa;--dashed:#3a6090;
+    --inline-bg:#1c2e44;--suggestion-bg:#1e3048;--suggestion-border:#4a6fa5;
+    --change-border:#2a4060;--tab-active:#d4e4f7;--btn-bg:#1f3350;--btn-border:#2e4e72;
+    --donut-hole:#1f3350;
+    --accent:#7aaad4;--accent2:#4a6fa5;
   }
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px}
@@ -41,7 +44,7 @@
   .editable:hover{border-bottom-color:var(--text2)}
   .bucket-name-edit{flex:1;min-width:0;font-size:14px;font-weight:500}
   .bucket-pct-edit{width:36px;text-align:center;font-size:14px;font-weight:500;flex-shrink:0}
-  .inline-input{border:none;border-bottom:2px solid #378ADD;outline:none;background:var(--inline-bg);color:var(--text);font-size:14px;font-weight:500;padding:1px 4px;border-radius:4px 4px 0 0;-moz-appearance:textfield}
+  .inline-input{border:none;border-bottom:2px solid #4a6fa5;outline:none;background:var(--inline-bg);color:var(--text);font-size:14px;font-weight:500;padding:1px 4px;border-radius:4px 4px 0 0;-moz-appearance:textfield}
   .name-inline{flex:1;min-width:0;width:100%}
   .pct-inline{width:36px;text-align:center}
   .amt{font-size:13px;font-weight:500;min-width:72px;text-align:right;color:var(--text);flex-shrink:0}
@@ -58,43 +61,43 @@
   .history-row:last-child{border-bottom:none}
   .hint{font-size:12px;color:var(--text3);margin:0 0 10px}
   .suggestion-box{background:var(--suggestion-bg);border:1px solid var(--suggestion-border);border-radius:10px;padding:1rem;margin-bottom:14px}
-  .suggestion-title{font-size:13px;font-weight:600;color:#4caf84;margin:0 0 6px}
+  .suggestion-title{font-size:13px;font-weight:600;color:#4a6fa5;margin:0 0 6px}
   .suggestion-body{font-size:13px;color:var(--text2);margin:0 0 10px;line-height:1.6}
   .change-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--change-border)}
   .change-row:last-child{border-bottom:none}
   .change-vals{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
   .change-new{font-weight:600;color:var(--text)}
-  .change-new.up{color:#4caf84}
+  .change-new.up{color:#4a6fa5}
   .change-new.down{color:#e08060}
   .suggestion-btns{display:flex;gap:8px;margin-top:12px}
-  .btn-approve{flex:1;padding:7px;font-size:13px;font-weight:500;cursor:pointer;background:#2d5a2d;border:1px solid #3d7a3d;border-radius:6px;color:var(--text)}
-  .btn-approve:hover{background:#3a6e3a}
+  .btn-approve{flex:1;padding:7px;font-size:13px;font-weight:500;cursor:pointer;background:#c8ddf0;border:1px solid #4a6fa5;border-radius:6px;color:var(--text)}
+  .btn-approve:hover{background:#b0ccec}
   .btn-dismiss{padding:7px 14px;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)}
   .btn-dismiss:hover{color:var(--text);border-color:var(--text2)}
   .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.5rem}
   .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem;flex-wrap:nowrap;gap:0;align-items:center;overflow-x:auto;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .warn-text{color:#e24b4a}
-  .ok-text{color:#1D9E75}
+  .ok-text{color:#4a6fa5}
   textarea{background:var(--card2);border:1px solid var(--btn-border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;width:100%;resize:vertical;outline:none;font-family:system-ui,sans-serif}
   textarea:focus{border-color:var(--text2)}
   .theme-toggle{margin-left:auto;background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.2s;white-space:nowrap}
   .theme-toggle:hover{border-color:var(--text2);color:var(--text)}
-  .tip-row{padding:10px 0;border-bottom:1px solid #2e2e2e}
+  .tip-row{padding:10px 0;border-bottom:1px solid var(--border2)}
   .tip-row:last-child{border-bottom:none}
   .tip-breakdown{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6}
   .goal-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:4px}
   .rate-input{font-size:14px;font-weight:500;border:none;border-bottom:1px solid var(--btn-border);background:transparent;color:var(--text);outline:none;width:60px;text-align:right}
   /* Confetti canvas */
   #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
-  .milestone-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--suggestion-bg);border:1px solid #4caf84;border-radius:12px;padding:12px 20px;font-size:14px;color:#4caf84;font-weight:600;z-index:10000;display:none;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+  .milestone-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--suggestion-bg);border:1px solid #4a6fa5;border-radius:12px;padding:12px 20px;font-size:14px;color:#4a6fa5;font-weight:600;z-index:10000;display:none;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(74,111,165,0.2)}
   @keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}
   @keyframes fadeOutOverlay{from{opacity:1}to{opacity:0}}
   @keyframes drawCheck{from{stroke-dashoffset:200}to{stroke-dashoffset:0}}
   @keyframes popIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
   @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
   .success-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeInOverlay 0.25s ease}
-  .success-check-circle{width:100px;height:100px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;animation:popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;box-shadow:0 0 40px rgba(29,158,117,0.5)}
+  .success-check-circle{width:100px;height:100px;border-radius:50%;background:#4a6fa5;display:flex;align-items:center;justify-content:center;animation:popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;box-shadow:0 0 40px rgba(74,111,165,0.6)}
   .success-check-circle svg{overflow:visible}
   .success-check-circle polyline{fill:none;stroke:#fff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:200;stroke-dashoffset:200;animation:drawCheck 0.4s ease 0.4s forwards}
   .success-title{color:#fff;font-size:26px;font-weight:700;margin-top:24px;animation:slideUp 0.35s ease 0.5s both}
@@ -108,10 +111,8 @@
 <div class="tabs">
   <button class="tab-btn active" id="tab-split" onclick="showTab('split')">Paycheck</button>
   <button class="tab-btn" id="tab-tips" onclick="showTab('tips')">Tips</button>
-  <button class="tab-btn" id="tab-settings" onclick="showTab('settings')">Buckets</button>
-  <button class="tab-btn" id="tab-history" onclick="showTab('history')">History</button>
   <button class="tab-btn" id="tab-trackers" onclick="showTab('trackers')">Trackers</button>
-  <button class="tab-btn" id="tab-guide" onclick="showTab('guide')">ℹ️</button>
+  <button class="tab-btn" id="tab-settings" onclick="showTab('settings')">Settings</button>
   <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;flex-shrink:0">☀️</button>
 </div>
 
@@ -186,44 +187,71 @@
 
 <!-- BUCKETS -->
 <div id="view-settings" style="display:none">
-  <div class="card">
-    <p class="section-title">Your Paycheck Buckets</p>
-    <p class="hint">Click a name or number to edit, then press Enter or click away to save.</p>
-    <div id="settings-buckets"></div>
-    <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text)">+ Add bucket</button>
+  <!-- Settings sub-tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="stab-buckets" onclick="switchSettingsTab('buckets')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:#4a6fa5;color:#fff">Buckets</button>
+    <button id="stab-history" onclick="switchSettingsTab('history')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2)">History</button>
+    <button id="stab-info" onclick="switchSettingsTab('info')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2)">Info</button>
+  </div>
+
+  <!-- Buckets section -->
+  <div id="ssection-buckets">
+    <div class="card">
+      <p class="section-title">Your Paycheck Buckets</p>
+      <p class="hint">Click a name or number to edit, then press Enter or click away to save.</p>
+      <div id="settings-buckets"></div>
+      <button onclick="addBucket()" style="margin-top:14px;font-size:13px;padding:6px 14px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text)">+ Add bucket</button>
+    </div>
+  </div>
+
+  <!-- History section (moved here) -->
+  <div id="ssection-history" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="htab-paycheck" onclick="switchHistoryTab('paycheck')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:#4a6fa5;color:#fff">Paychecks</button>
+      <button id="htab-tips" onclick="switchHistoryTab('tips')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2)">Tips</button>
+    </div>
+    <div id="hsection-paycheck">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <p class="section-title" style="margin:0">Paycheck Log</p>
+          <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
+        </div>
+        <div id="history-list"><p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
+    </div>
+    <div id="hsection-tips" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <p class="section-title" style="margin:0">Tip Log</p>
+          <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
+        </div>
+        <div id="tip-history-list"><p style="font-size:14px;color:var(--text3)">No tips logged yet.</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
+    </div>
+  </div>
+
+  <!-- Info section (moved here) -->
+  <div id="ssection-info" style="display:none">
+    <div class="card">
+      <p class="section-title">How Your Percentages Work</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin:0 0 12px">Every paycheck gets divided by the percentages you set in the <strong style="color:var(--text)">Buckets</strong> section. They should always add up to 100% — anything under means money is left unallocated, anything over means you've assigned more than you earn.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#7aaad4;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Savings account</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Goes into your high-yield savings account each check. Name the bucket anything with "saving" and it auto-tracks. When your student loan or collections balance is almost cleared, the freed-up percentage from those trackers gets redirected here automatically.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#4a6fa5;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Roth IRA</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Contributed toward your $7,000 annual limit. Name it anything with "IRA" or "Roth". <strong style="color:var(--text)">Smart suggestion:</strong> when a paycheck would overshoot the remaining limit, the app suggests dropping the IRA percentage to exactly what's needed and redirecting the freed-up amount to your student loans.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#90c0e0;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Student loans</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Applied directly to your loan balance each check. The tracker accounts for your interest rate so you see your real payoff date and total interest paid. Name it anything with "loan". <strong style="color:var(--text)">Smart suggestion:</strong> on the final paycheck before payoff, the app suggests reducing this percentage to only what's owed and moving the rest to savings.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#D85A30;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Collections</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Paid toward your collections balance each check. Name it anything with "collection" and it auto-tracks. <strong style="color:var(--text)">Smart suggestion:</strong> same as loans — on the final paycheck before the balance clears, the app suggests trimming the percentage to exactly what's owed and redirecting the rest to savings.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#639922;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Everything else</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Rent, food, bills, and fun money. What's left after your financial goals is yours to spend. A common guideline is 50% for essentials and 10–15% for discretionary spending.</p></div></div>
+      </div>
+      <div style="margin-top:14px;padding:10px 12px;background:var(--card2);border-radius:8px;border-left:3px solid #4a6fa5">
+        <p style="font-size:12px;color:var(--text2);margin:0 0 8px;line-height:1.6"><strong style="color:var(--text)">Smart suggestions appear automatically.</strong> When you enter your paycheck amount, the app checks all three trackers and shows a suggestion card for any that would overshoot. You can approve or dismiss each one independently — approving only affects that paycheck's percentages and resets when you log the next check.</p>
+        <p style="font-size:12px;color:var(--text2);margin:0;line-height:1.6"><strong style="color:var(--text)">Tip money works differently.</strong> Tips are unpredictable cash income — you set a separate split for them in the Tips tab. A common approach is keeping a portion as pocket cash and directing the rest toward your fastest-moving debt.</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- HISTORY -->
-<div id="view-history" style="display:none">
-  <!-- Sub-tabs -->
-  <div style="display:flex;gap:8px;margin-bottom:14px">
-    <button id="htab-paycheck" onclick="switchHistoryTab('paycheck')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:#1D9E75;color:#fff">Paychecks</button>
-    <button id="htab-tips" onclick="switchHistoryTab('tips')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2)">Tips</button>
-  </div>
-  <!-- Paycheck section -->
-  <div id="hsection-paycheck">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <p class="section-title" style="margin:0">Paycheck Log</p>
-        <button onclick="clearHistory()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
-      </div>
-      <div id="history-list"><p style="font-size:14px;color:var(--text3)">No paychecks logged yet.</p></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="history-stats"></div>
-  </div>
-  <!-- Tips section -->
-  <div id="hsection-tips" style="display:none">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <p class="section-title" style="margin:0">Tip Log</p>
-        <button onclick="clearTips()" style="font-size:12px;padding:4px 10px;cursor:pointer;background:var(--card2);border:1px solid var(--btn-border);border-radius:6px;color:var(--text2)">Clear all</button>
-      </div>
-      <div id="tip-history-list"><p style="font-size:14px;color:var(--text3)">No tips logged yet.</p></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:4px" id="tip-stats"></div>
-  </div>
-</div>
 
 <!-- TRACKERS -->
 <div id="view-trackers" style="display:none">
@@ -244,7 +272,7 @@
         <p style="font-size:18px;font-weight:500;margin:0;color:var(--text)">$7,000</p>
       </div>
     </div>
-    <div class="progress-track"><div class="progress-fill" id="ira-bar" style="background:#7F77DD;width:0%"></div></div>
+    <div class="progress-track"><div class="progress-fill" id="ira-bar" style="background:#4a6fa5;width:0%"></div></div>
     <div class="goal-bar-label"><span id="ira-pct-label">0% of limit used</span><span id="ira-remaining-label">$7,000 remaining</span></div>
     <p id="ira-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0"></p>
   </div>
@@ -300,54 +328,21 @@
         </div>
       </div>
     </div>
-    <div class="progress-track"><div class="progress-fill" id="loan-bar" style="background:#1D9E75;width:0%"></div></div>
+    <div class="progress-track"><div class="progress-fill" id="loan-bar" style="background:#7aaad4;width:0%"></div></div>
     <div class="goal-bar-label"><span id="loan-pct-label">0% paid off</span><span id="loan-remaining-label"></span></div>
     <p id="loan-auto-note" style="font-size:12px;color:var(--text2);margin:10px 0 0;line-height:1.6"></p>
   </div>
 
   <!-- How percentages work -->
   <div class="card" style="margin-top:4px">
-    <p style="font-size:13px;color:var(--text2);margin:0">Head to the <strong style="color:var(--text)">Guide</strong> tab for a full explanation of how your buckets, trackers, and smart suggestions work together.</p>
+    <p style="font-size:13px;color:var(--text2);margin:0">Head to <strong style="color:var(--text)">Settings → Info</strong> for a full explanation of how your buckets, trackers, and smart suggestions work together.</p>
   </div>
 </div>
 
-<!-- GUIDE -->
-<div id="view-guide" style="display:none">
-  <div class="card">
-    <p class="section-title">How Your Percentages Work</p>
-    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin:0 0 12px">Every paycheck gets divided by the percentages you set in the <strong style="color:var(--text)">Buckets</strong> tab. They should always add up to 100% — anything under means money is left unallocated, anything over means you've assigned more than you earn.</p>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:10px;height:10px;border-radius:50%;background:#1D9E75;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Savings account</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Goes into your high-yield savings account each check. Name the bucket anything with "saving" and it auto-tracks. When your student loan or collections balance is almost cleared, the freed-up percentage from those trackers gets redirected here automatically.</p></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:10px;height:10px;border-radius:50%;background:#7F77DD;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Roth IRA</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Contributed toward your $7,000 annual limit. Name it anything with "IRA" or "Roth". <strong style="color:var(--text)">Smart suggestion:</strong> when a paycheck would overshoot the remaining limit, the app suggests dropping the IRA percentage to exactly what's needed and redirecting the freed-up amount to your student loans.</p></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:10px;height:10px;border-radius:50%;background:#378ADD;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Student loans</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Applied directly to your loan balance each check. The tracker accounts for your interest rate so you see your real payoff date and total interest paid. Name it anything with "loan". <strong style="color:var(--text)">Smart suggestion:</strong> on the final paycheck before payoff, the app suggests reducing this percentage to only what's owed and moving the rest to savings.</p></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:10px;height:10px;border-radius:50%;background:#D85A30;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Collections</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Paid toward your collections balance each check. Name it anything with "collection" and it auto-tracks. <strong style="color:var(--text)">Smart suggestion:</strong> same as loans — on the final paycheck before the balance clears, the app suggests trimming the percentage to exactly what's owed and redirecting the rest to savings.</p></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:10px;height:10px;border-radius:50%;background:#639922;flex-shrink:0;margin-top:4px"></div>
-        <div><p style="font-size:13px;font-weight:500;color:var(--text);margin:0 0 2px">Everything else</p><p style="font-size:12px;color:var(--text2);margin:0;line-height:1.5">Rent, food, bills, and fun money. What's left after your financial goals is yours to spend. A common guideline is 50% for essentials and 10–15% for discretionary spending.</p></div>
-      </div>
-    </div>
-    <div style="margin-top:14px;padding:10px 12px;background:var(--card2);border-radius:8px;border-left:3px solid #7F77DD">
-      <p style="font-size:12px;color:var(--text2);margin:0 0 8px;line-height:1.6"><strong style="color:var(--text)">Smart suggestions appear automatically.</strong> When you enter your paycheck amount, the app checks all three trackers and shows a suggestion card for any that would overshoot. You can approve or dismiss each one independently — approving only affects that paycheck's percentages and resets when you log the next check.</p>
-      <p style="font-size:12px;color:var(--text2);margin:0;line-height:1.6"><strong style="color:var(--text)">Tip money works differently.</strong> Tips are unpredictable cash income — you set a separate split for them in the Tips tab. A common approach is keeping a portion as pocket cash and directing the rest toward your fastest-moving debt.</p>
-    </div>
-  </div>
-</div>
 
 <script>
-const COLORS=['#1D9E75','#7F77DD','#378ADD','#D85A30','#639922','#D4537E','#BA7517','#9FE1CB'];
-const BG_COLORS=['#0d2e20','#1e1c3a','#0f2236','#2e1a10','#1a2608','#2a0f1c','#2b1e06','#0d2e20'];
+const COLORS=['#4a6fa5','#7aaad4','#d4e4f7','#c0c0c0','#2a4f85','#90c0e0','#5888b8','#3a90c0'];
+const BG_COLORS=['#d4e4f7','#c8dcf4','#dce8f6','#e0e8f0','#c0d4ee','#e8f0f8','#ccd8f0','#d0e4f2'];
 const DEFAULT_BUCKETS=[
   {id:1,name:'Essential expenses',pct:50},
   {id:2,name:'Savings account',pct:15},
@@ -609,7 +604,7 @@ function renderSplit(){
   const pctEl=document.getElementById('pct-display');
   pctEl.textContent=Math.round(total)+'%';pctEl.style.color=total>100?'#e24b4a':'var(--text)';
   const leftEl=document.getElementById('leftover-display');
-  leftEl.textContent=fmt(leftover);leftEl.style.color=leftover<0?'#e24b4a':leftover>0?'#1D9E75':'var(--text)';
+  leftEl.textContent=fmt(leftover);leftEl.style.color=leftover<0?'#e24b4a':leftover>0?'#4a6fa5':'var(--text)';
   renderSuggestion(pay);
   const wrap=document.getElementById('split-buckets');wrap.innerHTML='';
   state.buckets.forEach((b,i)=>{
@@ -651,7 +646,7 @@ function renderTipBucketSettings(){
   const t=totalPct(state.tipBuckets);
   const el=document.getElementById('tip-pct-total');
   el.textContent=`Total: ${Math.round(t)}%`+(t!==100?' — adjust to reach 100%':'');
-  el.style.color=t===100?'#4caf84':'#e08060';
+  el.style.color=t===100?'#4a6fa5':'#e08060';
 }
 
 function makeTipEditable(el,bid,field){
@@ -731,7 +726,7 @@ function renderTipHistory(){
     const pills=h.buckets.map((b,i)=>`<span class="pill" style="background:${BG_COLORS[i%BG_COLORS.length]};color:${COLORS[i%COLORS.length]}">${b.name}: ${fmt(b.amt)}</span>`).join('');
     row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline">
       <span style="font-size:12px;color:var(--text3)">${h.date}</span>
-      <span style="font-size:15px;font-weight:500;color:#1D9E75">${fmt(h.total)}</span>
+      <span style="font-size:15px;font-weight:500;color:#4a6fa5">${fmt(h.total)}</span>
     </div>
     <div style="margin-top:4px">${pills}</div>
     ${h.note?`<p style="font-size:12px;color:var(--text3);margin:4px 0 0;font-style:italic">${h.note}</p>`:''}`;
@@ -803,9 +798,9 @@ function switchHistoryTab(tab){
   const isPay=tab==='paycheck';
   document.getElementById('hsection-paycheck').style.display=isPay?'block':'none';
   document.getElementById('hsection-tips').style.display=isPay?'none':'block';
-  document.getElementById('htab-paycheck').style.background=isPay?'#1D9E75':'var(--card2)';
+  document.getElementById('htab-paycheck').style.background=isPay?'#4a6fa5':'var(--card2)';
   document.getElementById('htab-paycheck').style.color=isPay?'#fff':'var(--text2)';
-  document.getElementById('htab-tips').style.background=isPay?'var(--card2)':'#1D9E75';
+  document.getElementById('htab-tips').style.background=isPay?'var(--card2)':'#4a6fa5';
   document.getElementById('htab-tips').style.color=isPay?'var(--text2)':'#fff';
 }
 
@@ -935,7 +930,7 @@ function renderTrackers(){
     else document.getElementById('collections-auto-note').textContent='Add a "Collections" bucket to your paycheck split to see a payoff estimate here.';
   } else if(colCurr<=0&&colOrig>0){
     document.getElementById('collections-auto-note').textContent='Collections balance cleared!';
-    document.getElementById('collections-auto-note').style.color='#4caf84';
+    document.getElementById('collections-auto-note').style.color='#4a6fa5';
   } else {
     document.getElementById('collections-auto-note').textContent=colOrig>0?'Add a "Collections" bucket to your paycheck split to see a payoff estimate here.'  :'';
   }
@@ -999,7 +994,7 @@ function logPaycheck(){
   showPaycheckSuccess();
 }
 
-function showMsg(txt,isErr){const el=document.getElementById('log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
+function showMsg(txt,isErr){const el=document.getElementById('log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#4a6fa5';setTimeout(()=>{el.textContent=''},3500);}
 
 function showSuccessOverlay(label){
   const id='success-overlay';
@@ -1030,7 +1025,7 @@ function showSuccessOverlay(label){
 }
 function showPaycheckSuccess(){showSuccessOverlay('Paycheck Logged!');}
 function showTipsSuccess(){showSuccessOverlay('Tips Logged!');}
-function showTipMsg(txt,isErr){const el=document.getElementById('tip-log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#1D9E75';setTimeout(()=>{el.textContent=''},3500);}
+function showTipMsg(txt,isErr){const el=document.getElementById('tip-log-msg');el.textContent=txt;el.style.color=isErr?'#e24b4a':'#4a6fa5';setTimeout(()=>{el.textContent=''},3500);}
 function clearHistory(){
   if(!state.history.length)return;
   // Reverse all paycheck tracker effects
@@ -1060,12 +1055,22 @@ function addBucket(){state.buckets.push({id:state.nextId++,name:'New bucket',pct
 function renderAll(){renderSplit();renderSettings();renderHistory();renderTrackers();renderTipBucketSettings();renderTipHistory();}
 
 function showTab(tab){
-  ['split','tips','settings','history','trackers','guide'].forEach(t=>{
+  ['split','tips','trackers','settings'].forEach(t=>{
     document.getElementById('view-'+t).style.display=t===tab?'block':'none';
     document.getElementById('tab-'+t).className='tab-btn'+(t===tab?' active':'');
   });
   if(tab==='split')renderSplit();
   if(tab==='tips'){renderTipBucketSettings();renderTipHistory();}
+  if(tab==='settings'){renderSettings();renderHistory();renderTipHistory();}
+}
+
+function switchSettingsTab(tab){
+  ['buckets','history','info'].forEach(s=>{
+    document.getElementById('ssection-'+s).style.display=s===tab?'block':'none';
+    const btn=document.getElementById('stab-'+s);
+    btn.style.background=s===tab?'#4a6fa5':'var(--card2)';
+    btn.style.color=s===tab?'#fff':'var(--text2)';
+  });
 }
 
 loadState();
